@@ -36,6 +36,6 @@ clusterNet use licence Apache 2.0. Work is in progress.
 #Articles-Documents 
 M. Alejandro García, Antonio Berrocal, Verónica Medina, Francisco Pérez "Diseño e Implementación de un Protocolo de Transporte Multicast Fiable (PTMF), SIT 2002, ISBN 84-699-9417-4
 
-Enabling Scada Cluster and Cloud for Smart Grid using Hierarchical Multicast; the PTMF Framework Industrial Technology (ICIT), 2015 IEEE International Conference on; March 2015. Available at IEEE Explorer.
+Alejandro García, "Enabling Scada Cluster and Cloud for Smart Grid using Hierarchical Multicast; the PTMF Framework" Industrial Technology (ICIT), 2015 IEEE International Conference on; March 2015. Available at IEEE Explorer.
 
 

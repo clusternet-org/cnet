@@ -46,13 +46,16 @@ import java.util.TreeMap;
 
 /**
  * <STRONG><b>
- * Clase ClusterNet.<br>
+ * Class ClusterNet.<br>
  *
- * Esta clase proporciona un "Socket Multicast Fiable ClusterNet". </b>
+ * This class provide a "Cluster Socket" M</b>
+ * The cluster socket provide a input and output stream to be easily used by applications to implement cluster applications, 
+ * where multiple communication way between peers nodes are needed.
+ *    
  *
- * La implementación del socket la realiza una instancia de SocketClusterNetImp.<br>
+ * The implementation is provide by the class SocketClusterNetImp.<br>
  *
- * Esta clase NO es thread-safe.
+ * This class is Not thread safe.
  * @version  1.0
  * @author M. Alejandro García Domínguez
  * <A HREF="mailto:alejandro.garcia.dominguez@gmail.com">(alejandro.garcia.dominguez@gmail.com)</A><p>
@@ -64,7 +67,7 @@ public class ClusterNet {
 
 	  //==========================================================================
 	  //
-	  //  VARIABLES ESTÁTICAS GLOBALES.
+	  //  GLOBAL STATIC VARS
 	  //
 
 	  /** Modo FIABLE del protocolo ClusterNet  */
