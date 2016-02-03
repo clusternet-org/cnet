@@ -8,18 +8,24 @@ clsuterNet is been used to implement a Scada Multicast Cluster for SmartGrids. A
 
 #Tools - Examples
 cFtp - a ftp cluster tool 
+
 Use:  java -cp clusterNet_v1.0.jar org.clusternet.ftp.cFtp
 	  or launch .jnlp file 
 
+
 cChat - a chat cluster tool
+
 Use: java -cp clusterNet_v1.0.jar org.clusternet.chat.cChat
 
 cPingSender / cPingReceiver Added mutils. A simple ping tool for send and receive multicast packets to test multicast communications on your cluster network. 
+
 Use:java -cp clusterNet_v1.0.jar org.clusternet.ping.mPingSender  <multicast address> <port> <ttl>
 Use:java -cp clusterNet_v1.0.jar org.clusternet.ping.mPingReceiver <multicast address> <port>
 
+
 Example:
 java -cp clusterNet_v1.0.jar org.clusternet.ping.mPingReceiver 224.2.2.2 2000
+
 java -cp clusterNet_v1.0.jar org.clusternet.ping.mPingSender 224.2.2.2 2000 16
 
 
