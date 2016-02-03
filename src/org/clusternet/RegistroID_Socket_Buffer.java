@@ -50,7 +50,7 @@ public class RegistroID_Socket_Buffer {
   private Buffer buf = null;
 
   /** El objeto ID_SOCKET*/
-  private ID_Socket id_socket = null;
+  private ClusterMemberID id_socket = null;
 
   /** Bit de Fin de Transmisión */
   private boolean bFinTransmision = false;
@@ -61,7 +61,7 @@ public class RegistroID_Socket_Buffer {
    * @param id_socket ID_SOCKET del emsior de los datos
    * @param buf Datos enviados.
    */
-  RegistroID_Socket_Buffer(ID_Socket id_socket,Buffer buf,boolean bFinTransmision)
+  RegistroID_Socket_Buffer(ClusterMemberID id_socket,Buffer buf,boolean bFinTransmision)
   {
    this.id_socket = id_socket;
    this.buf = buf;
@@ -73,7 +73,7 @@ public class RegistroID_Socket_Buffer {
    * Obtiene el objeto ID_SOCKET
    * @return Objeto ID_SOCKET.
    */
-  public ID_Socket getID_Socket()
+  public ClusterMemberID getID_Socket()
   {
     return this.id_socket;
   }
@@ -105,7 +105,7 @@ public class RegistroID_Socket_Buffer {
    */
   public String toString ()
   {
-    return "ID_Socket: " + this.id_socket +
+    return "ClusterMemberID: " + this.id_socket +
            "\nDatos:     " + this.buf
            ;
 

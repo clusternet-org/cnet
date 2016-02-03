@@ -176,7 +176,7 @@ public class ListaOrdID_TPDU implements Cloneable
    * @param id_socket
    * @return id_tpdu menor registrado para id_socket
    */
-  public ID_TPDU getID_TPDUMenor (ID_Socket id_socket)
+  public ID_TPDU getID_TPDUMenor (ClusterMemberID id_socket)
   {
    Iterator iteradorID_TPDU  = this.iteradorID_TPDU ();
 
@@ -207,7 +207,7 @@ public class ListaOrdID_TPDU implements Cloneable
    * @param id_Socket
    * @return lista con los id_tpdu eliminados, o null si no había ninguno.
    */
-  public ListaOrdID_TPDU removeID_Socket (ID_Socket id_Socket)
+  public ListaOrdID_TPDU removeID_Socket (ClusterMemberID id_Socket)
   {
    ListaOrdID_TPDU listaResult = new ListaOrdID_TPDU ();
    Iterator iterador = ((TreeMap)this.treeMapID_TPDU.clone()).keySet().iterator();
@@ -313,7 +313,7 @@ public class ListaOrdID_TPDU implements Cloneable
    * @param nSec
    * @return sortedMap con los id_tpdu mayor o igual, o null.
    */
-   public SortedMap getSublistaMayorIgual (ID_Socket id_socket,SecuenceNumber nSec)
+   public SortedMap getSublistaMayorIgual (ClusterMemberID id_socket,SecuenceNumber nSec)
    {
     // Devuelve una sublista formada por los números de secuencia del id_socket
     // indicado, mayores o iguales al dado.
@@ -337,7 +337,7 @@ public class ListaOrdID_TPDU implements Cloneable
    * @param id_socket
    * @return sortedMap con los id_tpdu mayor o igual, o null.
    */
-  public SortedMap getSublista (ID_Socket id_socket)
+  public SortedMap getSublista (ClusterMemberID id_socket)
   {
    return this.getSublistaMayorIgual (id_socket,SecuenceNumber.LIMITEINFERIOR);
   }
@@ -353,7 +353,7 @@ public class ListaOrdID_TPDU implements Cloneable
    * @param nSec
    * @return sortedMap con los id_tpdu mayor o igual, o null.
    */
-  public SortedMap getSublistaMenorIgual (ID_Socket id_socket,SecuenceNumber nSec)
+  public SortedMap getSublistaMenorIgual (ClusterMemberID id_socket,SecuenceNumber nSec)
   {
     // Devuelve una sublista formada por los números de secuencia del id_socket
     // indicado, mayores o iguales al dado.

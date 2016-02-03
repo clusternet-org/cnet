@@ -144,7 +144,7 @@ public class Log extends PrintStream {
       sNivel =  TODO;
       break;
     case 0x00000001:
-      sNivel = IDGL;
+      sNivel = ClusterGroupID;
 
   case 0x00000002:
 
@@ -209,7 +209,7 @@ case
    * <UL>
    * <IL>Si se requiere todos los niveles: NIVEL_TODOS </IL>
    * <IL>Cualquier nivel se puede poner como combinación OR a nivel de bits "||"
-   *   de cualquier nivel. Por ejemplo: IDGL | DATOS </IL>
+   *   de cualquier nivel. Por ejemplo: ClusterGroupID | DATOS </IL>
    * </UL>
    */
   public static void setNivelDepuracion(int nivel)

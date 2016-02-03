@@ -4,12 +4,11 @@
 //
 //----------------------------------------------------------------------------
 //
-//	Fichero: RegistroIDGL_TreeMap.java  1.0 24/11/99
+//	File: ClusterMemberListener.java  1.0 21/10/99
 //
 //
-//	Descripción: Clase RegistroIGDL_TreeMap
+//	Descripción: Interfaz ClusterMemberListener
 //
-// 	
 // 	Authors: 
 //		 Alejandro García-Domínguez (alejandro.garcia.dominguez@gmail.com)
 //		 Antonio Berrocal Piris (antonioberrocalpiris@gmail.com)
@@ -34,48 +33,22 @@
 
 package org.clusternet;
 
-import java.util.TreeMap;
-
 /**
- * <p>Title: ClusterNet v1.1</p>
- * <p>Description: Protocolo de Transporte Multicast Fiable</p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: </p>
- * @author unascribed
- * @version 1.1
+ * Esta interfaz es utilizada por la clase CGLThread para notificar
+ * eventos acerca de la incorporación/eliminación de sockets en el grupo local.-
  */
 
+public interface ClusterMemberListener
+{
+  /**
+   * Notifica que Id_Socket ha sido añadido al grupo local
+   * @param id_socket ClusterMemberID añadido al grupo local
+   */
+  public void ID_SocketAñadido(ClusterMemberID id_socket);
 
   /**
-   * Clase RegistroIDGL_TreeMap.<br>
-   * Almacena un ClusterGroupID y un TreMap con ClusterGroupID.
+   * Notifica que Id_Socket ha sido eliminado
+   * @param id_socket ClusterMemberID eliminado del Grupo Local
    */
-   public class RegistroIDGL_TreeMap
-   {
-      ClusterGroupID clusterGroupID = null;
-      TreeMap treemap = null;
-
-      RegistroIDGL_TreeMap(ClusterGroupID clusterGroupID,TreeMap treemap)
-      {
-       this.clusterGroupID = clusterGroupID;
-       this.treemap = treemap;
-      }
-
-      /**
-       * Obtiene el ClusterGroupID
-       * @return
-       */
-      public ClusterGroupID getIDGL()
-      {
-        return clusterGroupID;
-      }
-
-      /**
-       * Obtiene el treemap
-       * @return
-       */
-      public TreeMap getTreeMap()
-      {
-        return treemap;
-      }
-   }
+  public void ID_SocketEliminado(ClusterMemberID id_socket);
+}

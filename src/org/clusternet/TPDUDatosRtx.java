@@ -81,11 +81,11 @@ import java.util.Vector;
  * +---------------------------------------------------------------+<br>
  * +                              ....                             +<br>
  * +---------------------------------------------------------------+<br>
- * +                   IDGL Hijo 1   (4 primeros bytes)            +<br>
+ * +                   ClusterGroupID Hijo 1   (4 primeros bytes)            +<br>
  * +---------------------------------------------------------------+<br>
- * + IDGL Hijo 1 (2 últimos bytes) | IDGL Hijo 2 (2 primeros bytes)+<br>
+ * + ClusterGroupID Hijo 1 (2 últimos bytes) | ClusterGroupID Hijo 2 (2 primeros bytes)+<br>
  * +---------------------------------------------------------------+<br>
- * +                  IDGL Hijo 2 (4 bytes últimos)                +<br>
+ * +                  ClusterGroupID Hijo 2 (4 bytes últimos)                +<br>
  * +---------------------------------------------------------------+<br>
  * +                              ...                              +<br>
  * +---------------------------------------------------------------+<br>
@@ -152,9 +152,9 @@ public class TPDUDatosRtx extends TPDUDatos
   private byte NUMERO_IDGL = 0;
 
   /**
-   * IDGL Fuente (48 bits)
+   * ClusterGroupID Fuente (48 bits)
    */
-  private IDGL IDGL_FUENTE = null;
+  private ClusterGroupID IDGL_FUENTE = null;
 
 
   /**
@@ -175,7 +175,7 @@ public class TPDUDatosRtx extends TPDUDatos
     * Lista con los id_sockets de los que no ha recibido ACK.
     * <table border=1>
     *  <tr>  <td><b>Key:</b></td>
-    *	    <td>{@link ID_Socket}.</td>
+    *	    <td>{@link ClusterMemberID}.</td>
     *  </tr>
     *  <tr>  <td><b>Value:</b></td>
     *	    <td>NULL</td>
@@ -188,7 +188,7 @@ public class TPDUDatosRtx extends TPDUDatos
     * Lista con los idgls de los que no ha recibido HACK o HSACK.
     * <table border=1>
     *  <tr>  <td><b>Key:</b></td>
-    *	    <td>{@link IDGL}.</td>
+    *	    <td>{@link ClusterGroupID}.</td>
     *  </tr>
     *  <tr>  <td><b>Value:</b></td>
     *	    <td>NULL</td>
@@ -240,7 +240,7 @@ public class TPDUDatosRtx extends TPDUDatos
   * Crea un vector de TPDUDatosRtx con la información facilitada.
   * El buffer de datos tiene que caber en el TPDU Datos rtx. <br>
   * Todos los TPDU Datos Rtx creados son iguales, excepto en la lista de
-  * identificadores de id_socket e idgl que no han enviado asentimiento.<br>
+  * identificadores de id_socket e clusterGroupID que no han enviado asentimiento.<br>
   * La unión de todas las listas de id_sockets e idgls de los TPDUDatosRtx del
   * vector creado es igual a las listas pasadas por argumentos, sin repeticiones.
   * @param socketClusterNetImp utilzado para obtener información de la cabecera
@@ -279,7 +279,7 @@ public class TPDUDatosRtx extends TPDUDatos
                                         boolean setFIN_CONEXION,
                                         boolean setFIN_TRANSMISION,
                                         int numeroRafagaFuente,
-                                        IDGL idglFuente,
+                                        ClusterGroupID idglFuente,
                                         ID_TPDU id_tpduFuente,
                                         TreeMap treeMapID_Socket,
                                         TreeMap treeMapIDGL,
@@ -315,8 +315,8 @@ public class TPDUDatosRtx extends TPDUDatos
            incluirNoAsentido = true;
           }
 
-   // Al menos capacidad deberá ser mayor o igual a 6 para que quepa un IDGL o
-   // ID_Socket.
+   // Al menos capacidad deberá ser mayor o igual a 6 para que quepa un ClusterGroupID o
+   // ClusterMemberID.
    if (incluirNoAsentido && (capacidad < 6))
      throw new ClusterNetExcepcion ("No hay espacio para añadir ningún identificador.");
 
@@ -340,7 +340,7 @@ public class TPDUDatosRtx extends TPDUDatos
       } // Fin del while de iteradorID_Socket
     } // Fin del if iteradorID_Socket
 
-    // Incluir todos los idgl que quepan.
+    // Incluir todos los clusterGroupID que quepan.
     if (iteradorIDGL!=null && numIDCaben > 0)
      {
       treeMapIDGLAux = new TreeMap();
@@ -469,7 +469,7 @@ public class TPDUDatosRtx extends TPDUDatos
    bufferResult.addShort (this.NUMERO_RAFAGA_FUENTE,offset);
    offset+=2;
 
-   // 21º , 22º, 23º y 24º BYTE : IDGL Fuente
+   // 21º , 22º, 23º y 24º BYTE : ClusterGroupID Fuente
    if ( ( this.IDGL_FUENTE == null)
            || ( this.IDGL_FUENTE.id.getMaxLength() != 6))
       {
@@ -514,10 +514,10 @@ public class TPDUDatosRtx extends TPDUDatos
    if (this.NUMERO_DE_SOCKET>0)
      {
       Iterator iteradorID_Socket = this.LISTA_ORD_ID_SOCKET.keySet().iterator();
-      ID_Socket id_SocketNext = null;
+      ClusterMemberID id_SocketNext = null;
       while (iteradorID_Socket.hasNext())
        {
-        id_SocketNext = (ID_Socket)iteradorID_Socket.next();
+        id_SocketNext = (ClusterMemberID)iteradorID_Socket.next();
         // Añadir IP
         bufferResult.addBytes (id_SocketNext.getDireccion().ipv4,0,offset,4);
         offset += 4;
@@ -535,10 +535,10 @@ public class TPDUDatosRtx extends TPDUDatos
 
       while(iterator.hasNext())
       {
-         IDGL idgl = (IDGL)iterator.next();
+         ClusterGroupID clusterGroupID = (ClusterGroupID)iterator.next();
 
-         //Añadir idgl
-         bufferResult.addBytes(idgl.id,0,offset,6);
+         //Añadir clusterGroupID
+         bufferResult.addBytes(clusterGroupID.id,0,offset,6);
          offset+=6;
       }
     }
@@ -637,9 +637,9 @@ public class TPDUDatosRtx extends TPDUDatos
   tpduDatosRtx.NUMERO_RAFAGA_FUENTE = buffer.getShort (offset);
   offset+=2;
 
-  // 19º, 20º, 21º ,22º, 23º y 24º BYTE : IDGL Fuente
+  // 19º, 20º, 21º ,22º, 23º y 24º BYTE : ClusterGroupID Fuente
   tpduDatosRtx.IDGL_FUENTE =
-                   new IDGL (new Buffer(buffer.getBytes(offset,(byte) 6)),(byte)0);
+                   new ClusterGroupID (new Buffer(buffer.getBytes(offset,(byte) 6)),(byte)0);
   offset+=6;
 
 
@@ -662,7 +662,7 @@ public class TPDUDatosRtx extends TPDUDatos
   // Construir el ID_TPDU_FUENTE
   tpduDatosRtx.ID_TPDU_FUENTE = new ID_TPDU (
 
-                                new ID_Socket (ipFuente,puertoUnicastFuente),
+                                new ClusterMemberID (ipFuente,puertoUnicastFuente),
                                 nSecFuente);
 
   // 35º BYTE : Número de Socket
@@ -674,7 +674,7 @@ public class TPDUDatosRtx extends TPDUDatos
   offset++;
 
   // [37º ...  tpduDatosRtx.NUMERO_DE_SOCKET] BYTE : [IP,Puerto Unicast]
-  // Comprueba la longitud. Cada ID_Socket ocupa 6 bytes
+  // Comprueba la longitud. Cada ClusterMemberID ocupa 6 bytes
   if (buffer.getMaxLength()<(tpduDatosRtx.LONGHEADER + tpduDatosRtx.NUMERO_DE_SOCKET*6))
         throw new ClusterNetExcepcion (mn+"Error en el parser");
 
@@ -682,13 +682,13 @@ public class TPDUDatosRtx extends TPDUDatos
   if (tpduDatosRtx.NUMERO_DE_SOCKET>0)
        tpduDatosRtx.LISTA_ORD_ID_SOCKET = new TreeMap ();
 
-  ID_Socket id_Socket = null;
+  ClusterMemberID id_Socket = null;
   IPv4           ipv4 = null;
   for (int i=0;i<tpduDatosRtx.NUMERO_DE_SOCKET;i++)
    {
     ipv4 = new IPv4 (new Buffer (buffer.getBytes(offset,4)));
     offset += 4;
-    id_Socket = new ID_Socket (ipv4,buffer.getShort (offset));
+    id_Socket = new ClusterMemberID (ipv4,buffer.getShort (offset));
     offset += 2;
 
     tpduDatosRtx.LISTA_ORD_ID_SOCKET.put (id_Socket,null);
@@ -701,7 +701,7 @@ public class TPDUDatosRtx extends TPDUDatos
     //Obtener IDGLs
     for(int i = 0 ; i < tpduDatosRtx.NUMERO_IDGL; i++)
      {
-      tpduDatosRtx.LISTA_ORD_IDGL.put(new IDGL(new Buffer(buffer.getBytes(offset,6)),(byte)0) ,null);
+      tpduDatosRtx.LISTA_ORD_IDGL.put(new ClusterGroupID(new Buffer(buffer.getBytes(offset,6)),(byte)0) ,null);
       offset+=6;
      }
     }
@@ -877,7 +877,7 @@ public class TPDUDatosRtx extends TPDUDatos
   * <table border=1>
 
   *  <tr>  <td><b>Key:</b></td>
-  *	    <td>{@link ID_Socket}.</td>
+  *	    <td>{@link ClusterMemberID}.</td>
   *  </tr>
   *  <tr>  <td><b>Value:</b></td>
   *	    <td>NULL</td>
@@ -903,7 +903,7 @@ public class TPDUDatosRtx extends TPDUDatos
   * <table border=1>
 
   *  <tr>  <td><b>Key:</b></td>
-  *	    <td>{@link IDGL}.</td>
+  *	    <td>{@link ClusterGroupID}.</td>
   *  </tr>
   *  <tr>  <td><b>Value:</b></td>
   *	    <td>NULL</td>
@@ -933,13 +933,13 @@ public class TPDUDatosRtx extends TPDUDatos
 
  //===========================================================================
  /**
-  * Devuelve el idgl al que pertenece el emisor fuente de los datos.
+  * Devuelve el clusterGroupID al que pertenece el emisor fuente de los datos.
 
-  * @return idgl fuente
+  * @return clusterGroupID fuente
 
   */
 
- IDGL getIDGLFuente ()
+ ClusterGroupID getIDGLFuente ()
  {
   return this.IDGL_FUENTE;
  }
@@ -996,7 +996,7 @@ public class TPDUDatosRtx extends TPDUDatos
      result = result + "\nID_Sockets: " + this.LISTA_ORD_ID_SOCKET;
 
 
-   // Añadir al String los IDGL
+   // Añadir al String los ClusterGroupID
 
    if (this.LISTA_ORD_IDGL != null)
 

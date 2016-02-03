@@ -43,7 +43,7 @@ import java.util.Iterator;
 /**
  * Almacena la información sobre los CG locales. Cada TPDU Datos con el bit set
  * ACK activado tiene asignado un CG local que gestionará su fiabilidad. La tabla
- * asocia el ID_TPDU al ID_Socket que es su CG local. <br>
+ * asocia el ID_TPDU al ClusterMemberID que es su CG local. <br>
  *
  * Esta clase no es thread-safe.
  * @version  1.0
@@ -60,7 +60,7 @@ public class TablaCGLocales
    * Información sobre los rafagas de ID_TPDU y de los CG Local asociado.
    * <table border=1>
    *  <tr>  <td><b>Key:</b></td>
-   *	    <td>{@link ID_Socket} fuente</td>
+   *	    <td>{@link ClusterMemberID} fuente</td>
    *  </tr>
    *  <tr>  <td><b>Value:</b></td>
    *	    <td>
@@ -97,10 +97,10 @@ public class TablaCGLocales
    * @param id_SocketCGLocal id_socket que es CG de la ráfaga.
    * @return true si la rafaga ha sido añadido, y false en caso contrario.
    */
-  public boolean addRafaga (ID_Socket id_SocketFuente,
+  public boolean addRafaga (ClusterMemberID id_SocketFuente,
                             int iNumRafagaParam,
                             SecuenceNumber nSecInicial,
-                            ID_Socket id_SocketCGLocal)
+                            ClusterMemberID id_SocketCGLocal)
   {
    final String mn = "TablaCGLocales.addRafaga(..)";
 
@@ -144,7 +144,7 @@ public class TablaCGLocales
    * puede ser null.
    * @return true si la rafaga ha sido actualizada, y false en caso contrario.
    */
-  public boolean actualizarNumSecInicial (ID_Socket id_SocketFuente,
+  public boolean actualizarNumSecInicial (ClusterMemberID id_SocketFuente,
                                           int iNumRafagaParam,
                                           SecuenceNumber nSecInicialParam)
   {
@@ -189,8 +189,8 @@ public class TablaCGLocales
    * @return true si la rafaga ha sido actualizada, y false, si la ráfaga no
    * estaba registrada.
    */
-  public boolean actualizaID_SocketCGLocal (ID_Socket id_SocketSrc,int iNumRafagaParam,
-                                      ID_Socket id_SocketCGLocal)
+  public boolean actualizaID_SocketCGLocal (ClusterMemberID id_SocketSrc,int iNumRafagaParam,
+                                      ClusterMemberID id_SocketCGLocal)
   {
    final String mn = "TablaCGLoclases.actualizaID_SocketCGLocal (...)";
 
@@ -220,7 +220,7 @@ public class TablaCGLocales
    * @param iNumRafaga número de la ráfaga, tiene que ser mayor de cero.
    * @return CG local de la ráfaga, o null si no está registrada.
    */
-  public ID_Socket getCGLocal (ID_Socket id_SocketSrc,int iNumeroRafaga)
+  public ClusterMemberID getCGLocal (ClusterMemberID id_SocketSrc,int iNumeroRafaga)
   {
    final String mn = "TablaCGLocales.getCGLocal (id_Socket,numRaf)";
 
@@ -250,9 +250,9 @@ public class TablaCGLocales
    * @return CG local, o null si la ráfaga a la que pertenece id_TPDU no está
    * registrada.
    */
-  public ID_Socket getCGLocal (ID_TPDU id_TPDU)
+  public ClusterMemberID getCGLocal (ID_TPDU id_TPDU)
   {
-    ID_Socket id_SocketEmisor = id_TPDU.getID_Socket ();
+    ClusterMemberID id_SocketEmisor = id_TPDU.getID_Socket ();
     SecuenceNumber nSec      = id_TPDU.getNumeroSecuencia ();
 
     // Está indexado por la dirección fuente.
@@ -265,7 +265,7 @@ public class TablaCGLocales
     // Buscar por todas las ráfagas asociadas al emisor del id_TPDU
     Iterator iterador = treeMapRafagas.values().iterator ();
     RegistroRafaga regNext = null;
-    ID_Socket id_SocketCGLocal = null;
+    ClusterMemberID id_SocketCGLocal = null;
     while (iterador.hasNext())
      {
       regNext = (RegistroRafaga)iterador.next ();
@@ -289,7 +289,7 @@ public class TablaCGLocales
    * @return true si la rafaga ha sido eliminada, y false, si la ráfaga no
    * estaba registrada.
    */
-  public boolean removeRafaga (ID_Socket id_SocketSrc,int iNumeroRafagaParam)
+  public boolean removeRafaga (ClusterMemberID id_SocketSrc,int iNumeroRafagaParam)
   {
     if ((id_SocketSrc==null) || (iNumeroRafagaParam<=0))
        return false;
@@ -314,7 +314,7 @@ public class TablaCGLocales
    * @param nSecParam número de secuencia.
    * @return true si se ha eliminado alguna ráfaga y false en caso contrario.
    */
-  public void removeRafagaNSecFinalMenorIgual (ID_Socket id_SocketSrc,
+  public void removeRafagaNSecFinalMenorIgual (ClusterMemberID id_SocketSrc,
                                                SecuenceNumber nSecParam)
   {
     if ((id_SocketSrc==null) || (nSecParam==null))
@@ -383,7 +383,7 @@ public class TablaCGLocales
    * Elimina las ráfagas registradas cuyo emisor fuente sea el indicado.
    * @param id_Socket fuente de las ráfagas registradas a eliminar.
    */
-  public void removeID_SocketFuente (ID_Socket id_Socket)
+  public void removeID_SocketFuente (ClusterMemberID id_Socket)
   {
     this.treeMapTablaCGLocales.remove (id_Socket);
   }
@@ -394,7 +394,7 @@ public class TablaCGLocales
    * como CG Local de otros emisores fuentes.
    * @param id_Socket id_socket a eliminar.
    */
-  public void removeID_Socket (ID_Socket id_Socket)
+  public void removeID_Socket (ClusterMemberID id_Socket)
   {
    this.treeMapTablaCGLocales.remove (id_Socket);
 
@@ -431,7 +431,7 @@ public class TablaCGLocales
    * @param iNumRafagaParam número de la ráfaga, tiene que ser mayor de cero.
    * @return número de secuencia inicial de la ráfaga, o null si no estaba registrada.
    */
-  public SecuenceNumber getNumSecInicialRafaga (ID_Socket id_SocketFuente,
+  public SecuenceNumber getNumSecInicialRafaga (ClusterMemberID id_SocketFuente,
                                                  int iNumRafagaParam)
   {
    TreeMap treeMapRafagas = (TreeMap) this.treeMapTablaCGLocales.get (id_SocketFuente);
@@ -483,7 +483,7 @@ class RegistroRafaga
 
  /** id_Socket del CG local de la ráfaga */
 
- ID_Socket id_SocketCGLocal = null;
+ ClusterMemberID id_SocketCGLocal = null;
 
 
  /** Número de secuencia de inicio de la ráfaga */

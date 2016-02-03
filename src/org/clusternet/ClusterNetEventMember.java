@@ -6,7 +6,7 @@
 //
 //	Fichero: ClusterNetEventMember.java  1.0 14/03/2000
 //
-//	Descripción: Clase ClusterNetEventMember. Evento ClusterNet ID_Socket
+//	Descripción: Clase ClusterNetEventMember. Evento ClusterNet ClusterMemberID
 //
 // 	Authors: 
 //		 Alejandro García-Domínguez (alejandro.garcia.dominguez@gmail.com)
@@ -37,15 +37,15 @@ import java.util.EventObject;
 
 /**
  * La clase ClusterNetEventMember es utilizada por ClusterNet para notificar la incorporacion
- * o eliminacion de un ID_Socket
+ * o eliminacion de un ClusterMemberID
  */
 public class ClusterNetEventMember extends ClusterNetEvent
 {
 
-  /** ID_Socket */
-  private ID_Socket id_socket = null;
+  /** ClusterMemberID */
+  private ClusterMemberID id_socket = null;
 
-  /** Boolean bAñadido. especifica si el ID_Socket ha sido añadido o eliminado */
+  /** Boolean bAñadido. especifica si el ClusterMemberID ha sido añadido o eliminado */
   private boolean bAñadido = false;
 
   /**
@@ -54,7 +54,7 @@ public class ClusterNetEventMember extends ClusterNetEvent
    * @param sInformativa cadena Informativa
    */
   public ClusterNetEventMember(SocketClusterNetImp socket,String sInformativa,
-        ID_Socket id_socket,boolean bAñadido)
+        ClusterMemberID id_socket,boolean bAñadido)
   {
     super(socket,EVENTO_ID_SOCKET,sInformativa);
     this.id_socket = id_socket;
@@ -62,13 +62,13 @@ public class ClusterNetEventMember extends ClusterNetEvent
   }
 
   /**
-   * Obtiene el ID_Socket
-   * @return el objeto ID_Socket
+   * Obtiene el ClusterMemberID
+   * @return el objeto ClusterMemberID
    */
-  public ID_Socket getID_Socket(){return this.id_socket;}
+  public ClusterMemberID getID_Socket(){return this.id_socket;}
 
   /**
-   * Boolean que indica si el ID_Socket ha sido añadido o eliminado del grupo local
+   * Boolean que indica si el ClusterMemberID ha sido añadido o eliminado del grupo local
    */
   public boolean esAñadido() { return this.bAñadido;}
 

@@ -20,8 +20,8 @@ import java.util.*;
 
 import org.clusternet.Address;
 import org.clusternet.Buffer;
-import org.clusternet.ID_Socket;
-import org.clusternet.ID_SocketInputStream;
+import org.clusternet.ClusterMemberID;
+import org.clusternet.ClusterMemberInputStream;
 import org.clusternet.Log;
 import org.clusternet.ClusterNetInputStream;
 import org.clusternet.ClusterNetOutputStream;
@@ -83,11 +83,11 @@ public class FTPReceptor implements                ClusterNetConnectionListener,
  /** Numero de bytes leidos*/
  long lBytesLeidos = 0;
 
- /**  ID_SocketInputStream */
- private ID_SocketInputStream id_socketIn = null;
+ /**  ClusterMemberInputStream */
+ private ClusterMemberInputStream id_socketIn = null;
 
- /** ID_Socket */
- private ID_Socket id_socket = null;
+ /** ClusterMemberID */
+ private ClusterMemberID id_socket = null;
 
  /**Flujo de entrada Multiast*/
  private ClusterNetInputStream mIn = null;
@@ -336,7 +336,7 @@ public class FTPReceptor implements                ClusterNetConnectionListener,
   */
   public void actionPTMFID_SocketInputStream(ClusterNetEventMemberInputStream evento)
   {
-    Log.log("Nuecvo ID_Socket InputStream","");
+    Log.log("Nuecvo ClusterMemberID InputStream","");
     bFin = true;
     this.id_socketIn = evento.getID_SocketInputStream();
     this.id_socket = id_socketIn.getID_Socket();
@@ -368,9 +368,9 @@ public class FTPReceptor implements                ClusterNetConnectionListener,
   public void actionPTMFIDGL(ClusterNetEventGroup evento)
   {
     if(evento.esAñadido())
-      Log.log("Nuevo IDGL: " + evento.getIDGL(),"");
+      Log.log("Nuevo ClusterGroupID: " + evento.getIDGL(),"");
     else
-      Log.log("IDGL eliminado: " + evento.getIDGL(),"");
+      Log.log("ClusterGroupID eliminado: " + evento.getIDGL(),"");
   }
 
  //==========================================================================
@@ -380,9 +380,9 @@ public class FTPReceptor implements                ClusterNetConnectionListener,
   public void actionID_Socket(ClusterNetEventMember evento)
   {
     if(evento.esAñadido())
-      Log.log("Nuevo ID_Socket: " + evento.getID_Socket(),"");
+      Log.log("Nuevo ClusterMemberID: " + evento.getID_Socket(),"");
     else
-      Log.log("ID_Socket eliminado: " + evento.getID_Socket(),"");
+      Log.log("ClusterMemberID eliminado: " + evento.getID_Socket(),"");
   }
 //==========================================================================
  /**

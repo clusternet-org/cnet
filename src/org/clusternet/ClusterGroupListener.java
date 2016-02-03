@@ -4,12 +4,11 @@
 //
 //----------------------------------------------------------------------------
 //
-//	Fichero: RegistroIDGL_TreeMap.java  1.0 24/11/99
+//	Fichero: ClusterGroupListener.java  1.0 21/1/00
 //
 //
-//	Descripción: Clase RegistroIGDL_TreeMap
+//	Descripción: Interfaz ClusterGroupListener
 //
-// 	
 // 	Authors: 
 //		 Alejandro García-Domínguez (alejandro.garcia.dominguez@gmail.com)
 //		 Antonio Berrocal Piris (antonioberrocalpiris@gmail.com)
@@ -34,48 +33,25 @@
 
 package org.clusternet;
 
-import java.util.TreeMap;
 
 /**
- * <p>Title: ClusterNet v1.1</p>
- * <p>Description: Protocolo de Transporte Multicast Fiable</p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: </p>
- * @author unascribed
- * @version 1.1
+ * Esta interfaz es utilizada por la clase CGLThread para notificar
+ * eventos acerca de la incorporación/eliminación de IDGLs en
+ * la jerarquía de control.
  */
 
+public interface ClusterGroupListener
+{
+  /**
+   * Notifica que ClusterGroupID ha sido añadido
+   * @param clusterGroupID Nuevo ClusterGroupID que se puede alcanzar
+   */
+  public void IDGLAñadido(ClusterGroupID clusterGroupID);
 
   /**
-   * Clase RegistroIDGL_TreeMap.<br>
-   * Almacena un ClusterGroupID y un TreMap con ClusterGroupID.
+   * Notifica que ClusterGroupID ha sido eliminado
+   * @param clusterGroupID ClusterGroupID que ha quedado fuera de alcanze
    */
-   public class RegistroIDGL_TreeMap
-   {
-      ClusterGroupID clusterGroupID = null;
-      TreeMap treemap = null;
+  public void IDGLEliminado(ClusterGroupID clusterGroupID);
 
-      RegistroIDGL_TreeMap(ClusterGroupID clusterGroupID,TreeMap treemap)
-      {
-       this.clusterGroupID = clusterGroupID;
-       this.treemap = treemap;
-      }
-
-      /**
-       * Obtiene el ClusterGroupID
-       * @return
-       */
-      public ClusterGroupID getIDGL()
-      {
-        return clusterGroupID;
-      }
-
-      /**
-       * Obtiene el treemap
-       * @return
-       */
-      public TreeMap getTreeMap()
-      {
-        return treemap;
-      }
-   }
+}

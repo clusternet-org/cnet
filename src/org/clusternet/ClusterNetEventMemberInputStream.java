@@ -7,7 +7,7 @@
 //	File: ClusterNetEventMemberInputStream.java  1.0 13/04/2000
 //
 //
-//	Descripción: Clase ClusterNetEventMemberInputStream. Evento ClusterNet ID_Socket
+//	Descripción: Clase ClusterNetEventMemberInputStream. Evento ClusterNet ClusterMemberID
 //
 // 	Authors: 
 //		 Alejandro García-Domínguez (alejandro.garcia.dominguez@gmail.com)
@@ -39,14 +39,14 @@ import java.util.EventObject;
 /**
     La clase ClusterNetEventMemberInputStream es un evento ClusterNet utilizado
     por la clase ClusterNetInputStream para notificar a la aplicación
-    cuando hay un NUEVO FLUJO DE ENTRADA ID_SocketInputStream.<br>
-    El evento lleva asociado el nuevo flujo ID_SocketInputStream añadido.
+    cuando hay un NUEVO FLUJO DE ENTRADA ClusterMemberInputStream.<br>
+    El evento lleva asociado el nuevo flujo ClusterMemberInputStream añadido.
  */
 public class ClusterNetEventMemberInputStream extends ClusterNetEvent
 {
 
-  /** ID_SocketInputStream */
-  private ID_SocketInputStream id_socketInputStream = null;
+  /** ClusterMemberInputStream */
+  private ClusterMemberInputStream id_socketInputStream = null;
 
 
   /**
@@ -55,7 +55,7 @@ public class ClusterNetEventMemberInputStream extends ClusterNetEvent
    * @param sInformativa cadena Informativa
    */
   public ClusterNetEventMemberInputStream(SocketClusterNetImp socket,String sInformativa,
-        ID_SocketInputStream id_socketInputStream)
+        ClusterMemberInputStream id_socketInputStream)
   {
     super(socket,EVENTO_ID_SOCKET,sInformativa);
     this.id_socketInputStream = id_socketInputStream;
@@ -64,9 +64,9 @@ public class ClusterNetEventMemberInputStream extends ClusterNetEvent
 
   /**
    * Obtiene el ID_SocketInputStrem
-   * @return el objeto ID_SocketInputStream
+   * @return el objeto ClusterMemberInputStream
    */
-  public ID_SocketInputStream getID_SocketInputStream(){return this.id_socketInputStream;}
+  public ClusterMemberInputStream getID_SocketInputStream(){return this.id_socketInputStream;}
 
 }
 

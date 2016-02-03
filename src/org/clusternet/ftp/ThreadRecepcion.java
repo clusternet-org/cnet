@@ -34,14 +34,14 @@ import org.clusternet.*;
   private ThreadSesionMulticast threadSesionMulticast = null;
 
   private ProtocolcFTP protocolcFTP = null;
-  /** ID_SocketInputStream */
-  private ID_SocketInputStream id_socketIn = null;
+  /** ClusterMemberInputStream */
+  private ClusterMemberInputStream id_socketIn = null;
 
  //==========================================================================
  /**
   * Constructor
   */
-  public ThreadRecepcion( ThreadSesionMulticast threadSesionMulticast,  ID_SocketInputStream id_socketIn)
+  public ThreadRecepcion( ThreadSesionMulticast threadSesionMulticast,  ClusterMemberInputStream id_socketIn)
   {
     super("ThreadRecepcion");
 

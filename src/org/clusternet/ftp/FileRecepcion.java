@@ -54,11 +54,11 @@ import java.util.TreeMap;
    /** Diálogo de recepción */
    private JDialogRecepcion jDialogRecepcion = null;
 
-   /**  ID_SocketInputStream */
-   private ID_SocketInputStream id_socketIn = null;
+   /**  ClusterMemberInputStream */
+   private ClusterMemberInputStream id_socketIn = null;
 
-   /** ID_Socket */
-   private ID_Socket id_socket = null;
+   /** ClusterMemberID */
+   private ClusterMemberID id_socket = null;
 
    /** ProtocolcFTP */
    private ProtocolcFTP protocolcFTP = null;
@@ -74,7 +74,7 @@ import java.util.TreeMap;
   /**
    * Constructor. Utilizado en Modo NO FIABLE.
    */
-   public  FileRecepcion(ProtocolcFTP protocolcFTP, ID_Socket id_socket) throws IOException
+   public  FileRecepcion(ProtocolcFTP protocolcFTP, ClusterMemberID id_socket) throws IOException
    {
       super("FileRecepcion");
       this.setDaemon(true);
@@ -90,7 +90,7 @@ import java.util.TreeMap;
    * @exception IOException Si no se puede crear el fichero. <br>
    *  MOSTRAR EL STRING DE LA EXCEPCION COMO UN ERROR.
    */
-   public FileRecepcion(ProtocolcFTP protocolcFTP,ID_SocketInputStream id_socketIn )
+   public FileRecepcion(ProtocolcFTP protocolcFTP,ClusterMemberInputStream id_socketIn )
   throws IOException
 
    {

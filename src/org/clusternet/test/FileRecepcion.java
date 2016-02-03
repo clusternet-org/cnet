@@ -41,8 +41,8 @@ import java.io.*;
 import javax.swing.JOptionPane;
 
 import org.clusternet.Buffer;
-import org.clusternet.ID_Socket;
-import org.clusternet.ID_SocketInputStream;
+import org.clusternet.ClusterMemberID;
+import org.clusternet.ClusterMemberInputStream;
 import org.clusternet.Log;
 import org.clusternet.ClusterNet;
 import org.clusternet.ClusterNetExcepcion;
@@ -73,11 +73,11 @@ import java.util.TreeMap;
    /** Nombre del Fichero */
    private String sFileName = null;
 
-  /**  ID_SocketInputStream */
-   private ID_SocketInputStream id_socketIn = null;
+  /**  ClusterMemberInputStream */
+   private ClusterMemberInputStream id_socketIn = null;
 
-   /** ID_Socket */
-   private ID_Socket id_socket = null;
+   /** ClusterMemberID */
+   private ClusterMemberID id_socket = null;
 
    /** ProtocolcFTP */
    private ReceptorFTPMulticast receptorFTPMulticast = null;
@@ -93,7 +93,7 @@ import java.util.TreeMap;
   /**
    * Constructor. Utilizado en Modo NO FIABLE.
    */
-   public  FileRecepcion(ReceptorFTPMulticast receptorFTPMulticast, ID_Socket id_socket) throws IOException
+   public  FileRecepcion(ReceptorFTPMulticast receptorFTPMulticast, ClusterMemberID id_socket) throws IOException
    {
       super("FileRecepcion");
       this.setDaemon(true);
@@ -109,7 +109,7 @@ import java.util.TreeMap;
    * @exception IOException Si no se puede crear el fichero. <br>
    *  MOSTRAR EL STRING DE LA EXCEPCION COMO UN ERROR.
    */
-   public FileRecepcion(ReceptorFTPMulticast receptorFTPMulticast,ID_SocketInputStream id_socketIn )
+   public FileRecepcion(ReceptorFTPMulticast receptorFTPMulticast,ClusterMemberInputStream id_socketIn )
   throws IOException
 
    {

@@ -141,7 +141,7 @@ public class ClusterNetOutputStream extends OutputStream
   /**
    * Close. Cierra el Flujo de Salida.<bR>
    * El cierre de este flujo produce que se cierren los flujos de entrada
-   * ID_SocketInputStream en el lado de los receptores, así se notifica del
+   * ClusterMemberInputStream en el lado de los receptores, así se notifica del
    * fin de una transmisión Multicast. Nótese que LA CONEXIÓN MULTICAST
    * NO SE CIERRA.<br>
    * Una vez llamado a close() no se puede escribir en el flujo.

@@ -101,25 +101,25 @@ public class JTreeInformacion extends JPanel //implements TreeModel
 
 
     /**
-     * Añade un IDGL al árbol
+     * Añade un ClusterGroupID al árbol
      */
-    public DefaultMutableTreeNode addIDGL(IDGL idgl)
+    public DefaultMutableTreeNode addIDGL(ClusterGroupID clusterGroupID)
     {
-       return addObject(nodoIDGL, idgl, true);
+       return addObject(nodoIDGL, clusterGroupID, true);
     }
 
     /**
-     * Añade un ID_Socket al árbol
+     * Añade un ClusterMemberID al árbol
      */
-    public DefaultMutableTreeNode addID_Socket(ID_Socket idSocket)
+    public DefaultMutableTreeNode addID_Socket(ClusterMemberID idSocket)
     {
        return addObject(nodoIDSocket, idSocket, true);
     }
 
    /**
-     * Eliminar un IDGL al árbol
+     * Eliminar un ClusterGroupID al árbol
      */
-    public void removeIDGL(IDGL idgl)
+    public void removeIDGL(ClusterGroupID clusterGroupID)
     {
 
       Enumeration nodosIDGLS =  nodoIDGL.children();
@@ -128,9 +128,9 @@ public class JTreeInformacion extends JPanel //implements TreeModel
       {
         DefaultMutableTreeNode nodo =  (DefaultMutableTreeNode) nodosIDGLS.nextElement();
 
-        IDGL nodoIDGL =  (IDGL) nodo.getUserObject();
+        ClusterGroupID nodoIDGL =  (ClusterGroupID) nodo.getUserObject();
 
-        if (nodoIDGL.equals(idgl))
+        if (nodoIDGL.equals(clusterGroupID))
         {
           treeModel.removeNodeFromParent(nodo);
         }
@@ -141,7 +141,7 @@ public class JTreeInformacion extends JPanel //implements TreeModel
     /**
      * Eliminar un IDSocket al árbol
      */
-    public void removeIDSocket(ID_Socket idSocket)
+    public void removeIDSocket(ClusterMemberID idSocket)
     {
       Enumeration nodosIDSockets =  this.nodoIDSocket.children();
 
@@ -149,7 +149,7 @@ public class JTreeInformacion extends JPanel //implements TreeModel
       {
         DefaultMutableTreeNode nodo =  (DefaultMutableTreeNode) nodosIDSockets.nextElement();
 
-        ID_Socket nodoIDSocket=  (ID_Socket) nodo.getUserObject();
+        ClusterMemberID nodoIDSocket=  (ClusterMemberID) nodo.getUserObject();
 
         if (nodoIDSocket.equals(idSocket))
         {

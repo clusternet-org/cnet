@@ -7,7 +7,7 @@
 //	File: ClusterNetEventGroup.java  1.0 14/03/2000
 //
 //
-//	Description: Clase ClusterNetEventGroup. Evento ClusterNet IDGL
+//	Description: Clase ClusterNetEventGroup. Evento ClusterNet ClusterGroupID
 //
 // 	Authors: 
 //		 Alejandro García-Domínguez (alejandro.garcia.dominguez@gmail.com)
@@ -37,15 +37,15 @@ package org.clusternet;
 import java.util.EventObject;
 /**
  *  La clase ClusterNetEventGroup es utilizada por ClusterNet para notificar la incorporacion
- * o eliminacion de un IDGL
+ * o eliminacion de un ClusterGroupID
  */
 public class ClusterNetEventGroup extends ClusterNetEvent
 {
 
-  /** IDGL */
-  private IDGL idgl = null;
+  /** ClusterGroupID */
+  private ClusterGroupID clusterGroupID = null;
 
-  /** Boolean bAñadido. especifica si el IDGL ha sido añadido  o eliminado */
+  /** Boolean bAñadido. especifica si el ClusterGroupID ha sido añadido  o eliminado */
   private boolean bAñadido = false;
 
   /**
@@ -54,21 +54,21 @@ public class ClusterNetEventGroup extends ClusterNetEvent
    * @param sInformativa cadena Informativa
    * @param evento El tipo de evento que se quiere crear
    */
-  public ClusterNetEventGroup(SocketClusterNetImp socket,String sInformativa,IDGL idgl, boolean bAñadido)
+  public ClusterNetEventGroup(SocketClusterNetImp socket,String sInformativa,ClusterGroupID clusterGroupID, boolean bAñadido)
   {
     super(socket,EVENTO_IDGL,sInformativa);
-    this.idgl = idgl;
+    this.clusterGroupID = clusterGroupID;
     this.bAñadido = bAñadido;
   }
 
   /**
-   * Obtiene el IDGL
-   * @return el objeto IDGL
+   * Obtiene el ClusterGroupID
+   * @return el objeto ClusterGroupID
    */
-  public IDGL getIDGL(){return this.idgl;}
+  public ClusterGroupID getIDGL(){return this.clusterGroupID;}
 
   /**
-   * Boolean que indica si el IDGL ha sido añadido o eliminado a la jerarquía
+   * Boolean que indica si el ClusterGroupID ha sido añadido o eliminado a la jerarquía
    * del Grupo Local
    */
   public boolean esAñadido() { return this.bAñadido;}

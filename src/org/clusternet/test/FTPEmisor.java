@@ -338,9 +338,9 @@ public class FTPEmisor implements
   public void actionPTMFIDGL(ClusterNetEventGroup evento)
   {
     if(evento.esAñadido())
-      Log.log("Nuevo IDGL: " + evento.getIDGL(),"");
+      Log.log("Nuevo ClusterGroupID: " + evento.getIDGL(),"");
     else
-      Log.log("IDGL eliminado: " + evento.getIDGL(),"");
+      Log.log("ClusterGroupID eliminado: " + evento.getIDGL(),"");
   }
 
  //==========================================================================
@@ -350,9 +350,9 @@ public class FTPEmisor implements
   public void actionID_Socket(ClusterNetEventMember evento)
   {
     if(evento.esAñadido())
-      Log.log("Nuevo ID_Socket: " + evento.getID_Socket(),"");
+      Log.log("Nuevo ClusterMemberID: " + evento.getID_Socket(),"");
     else
-      Log.log("ID_Socket eliminado: " + evento.getID_Socket(),"");
+      Log.log("ClusterMemberID eliminado: " + evento.getID_Socket(),"");
   }
 
 

@@ -100,7 +100,7 @@ public class ProtocolcFTP extends Thread
   private Icon icon = null;
 
   /**
-   * TreeMap de Threads ThreadRecepcion. KEY= ID_SocketInputStream. VALUE=FileRecepcion
+   * TreeMap de Threads ThreadRecepcion. KEY= ClusterMemberInputStream. VALUE=FileRecepcion
    *  UTILIZADO EN MODO FIABLE.
    */
   private TreeMap treemapID_SocketInputStream = null;
@@ -222,7 +222,7 @@ public class ProtocolcFTP extends Thread
 
        while(iteratorSockets.hasNext())
        {
-          ID_Socket idSocket = (ID_Socket) iteratorSockets.next();
+          ClusterMemberID idSocket = (ClusterMemberID) iteratorSockets.next();
 
           ftp.getJFrame().jTreeInformacion.addID_Socket(idSocket);
        }
@@ -582,10 +582,10 @@ public class ProtocolcFTP extends Thread
     this.treemapID_Socket = new TreeMap();
 
 
-   // SI EL ID_Socket no está en el treemap, Significa CONEXIÓN NUEVA....
+   // SI EL ClusterMemberID no está en el treemap, Significa CONEXIÓN NUEVA....
    if(!this.treemapID_Socket.containsKey(reg.getID_Socket()))
    {
-       Log.log("NUEVO ID_Socket: "+reg.getID_Socket(),"");
+       Log.log("NUEVO ClusterMemberID: "+reg.getID_Socket(),"");
        Buffer buf = reg.getBuffer();
 
        //Comprobar IDFTP
@@ -645,9 +645,9 @@ public class ProtocolcFTP extends Thread
  //==========================================================================
  /**
   * Eliminar un FileRecepcion. MODO NO FIABLE.
-  * @param ID_Socket
+  * @param ClusterMemberID
   */
- void removeFileRecepcion(ID_Socket id_socket)
+ void removeFileRecepcion(ClusterMemberID id_socket)
  {
     this.treemapID_Socket.remove(id_socket);
  }
@@ -656,7 +656,7 @@ public class ProtocolcFTP extends Thread
  /**
   * Eliminar un FileRecepcion. MODO FIABLE.
   */
-  void removeFileRecepcion(ID_SocketInputStream idIn)
+  void removeFileRecepcion(ClusterMemberInputStream idIn)
   {
     //Log.log("Remove fileRecepcion: "+idIn,"");
 
@@ -758,11 +758,11 @@ public class ProtocolcFTP extends Thread
     {
        ftp.idgls = this.socket.getNumGroups();
 
-       //Añadir el IDGL al árbol de información
+       //Añadir el ClusterGroupID al árbol de información
        ftp.getJFrame().jTreeInformacion.addIDGL(evento.getIDGL());
 
        cFtp.getFTP().insertInformacionString("IDGLS: "+cFtp.getFTP().idgls);
-       cFtp.getFTP().insertInformacionString("Nuevo IDGL: "+evento.getIDGL());
+       cFtp.getFTP().insertInformacionString("Nuevo ClusterGroupID: "+evento.getIDGL());
 
     }
     else
@@ -773,7 +773,7 @@ public class ProtocolcFTP extends Thread
       ftp.getJFrame().jTreeInformacion.removeIDGL(evento.getIDGL());
 
        cFtp.getFTP().insertInformacionString("IDGLS: "+cFtp.getFTP().idgls);
-       cFtp.getFTP().insertInformacionString("IDGL eliminado: "+evento.getIDGL());
+       cFtp.getFTP().insertInformacionString("ClusterGroupID eliminado: "+evento.getIDGL());
     }
  }
 
@@ -790,21 +790,21 @@ public class ProtocolcFTP extends Thread
     {
       ftp.id_sockets = this.socket.getNumMembers();
 
-      //Añadir el ID_Socket al árbol de información
+      //Añadir el ClusterMemberID al árbol de información
       ftp.getJFrame().jTreeInformacion.addID_Socket(evento.getID_Socket());
 
        cFtp.getFTP().insertInformacionString("ID_Sockets: "+cFtp.getFTP().id_sockets);
-       cFtp.getFTP().insertInformacionString("Nuevo ID_Socket: "+evento.getID_Socket());
+       cFtp.getFTP().insertInformacionString("Nuevo ClusterMemberID: "+evento.getID_Socket());
     }
     else
     {
       ftp.id_sockets = this.socket.getNumMembers();
 
-      //Añadir el ID_Socket al árbol de información
+      //Añadir el ClusterMemberID al árbol de información
       ftp.getJFrame().jTreeInformacion.removeIDSocket(evento.getID_Socket());
 
       ftp.insertInformacionString("ID_Sockets: "+cFtp.getFTP().id_sockets);
-      ftp.insertInformacionString("ID_Socket eliminado: "+evento.getID_Socket());
+      ftp.insertInformacionString("ClusterMemberID eliminado: "+evento.getID_Socket());
     }
 
  }
@@ -835,7 +835,7 @@ public class ProtocolcFTP extends Thread
    if ( treemapID_SocketInputStream == null)
       this.treemapID_SocketInputStream = new TreeMap();
 
-   ID_SocketInputStream idIn = evento.getID_SocketInputStream();
+   ClusterMemberInputStream idIn = evento.getID_SocketInputStream();
    if (idIn == null)
    {
     //Log.log("\n\nNUEVO ID_SOCKETINPUTSTREAM: NULL","");

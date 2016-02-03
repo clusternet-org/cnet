@@ -190,7 +190,7 @@ public class JFramePrincipal extends JFrame
       /*
           //Crear los nodos hijos
           DefaultMutableTreeNode nodoIDGL = null;
-          DefaultMutableTreeNode idgl = null;
+          DefaultMutableTreeNode clusterGroupID = null;
 
           //Nodo General
           nodoIDGL = new DefaultMutableTreeNode("Actividad");
@@ -201,12 +201,12 @@ public class JFramePrincipal extends JFrame
           top.add(nodoIDGL);
 
           //original Tutorial
-          idgl = new DefaultMutableTreeNode("IDGL 1");
-          nodoIDGL.add(idgl);
+          clusterGroupID = new DefaultMutableTreeNode("ClusterGroupID 1");
+          nodoIDGL.add(clusterGroupID);
 
           //Tutorial Continued
-          idgl = new DefaultMutableTreeNode("IDGL 2");
-          nodoIDGL.add(idgl);
+          clusterGroupID = new DefaultMutableTreeNode("ClusterGroupID 2");
+          nodoIDGL.add(clusterGroupID);
 
 
 

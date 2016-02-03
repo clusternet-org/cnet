@@ -42,8 +42,8 @@ import java.util.SortedMap;
 /**
  * 1. Almacena <b>los ID_TPDU por los que está esperando recibir asentimientos
  *    positivos.</b><br>
- * 2. Lleva el control de quien ha asentido (vecinos o hermanos --> ID_Socket)
- *    o (grupos locales --> IDGL)
+ * 2. Lleva el control de quien ha asentido (vecinos o hermanos --> ClusterMemberID)
+ *    o (grupos locales --> ClusterGroupID)
  *
  * Esta clase no es thread-safe.
  *
@@ -158,7 +158,7 @@ public class TablaAsentimientos
    * @return true si se estaba esperando recibir asentimiento por id_tpdu o por
    * alguno menor.
    */
-  public boolean addACK (ID_Socket id_Socket, ID_TPDU id_tpdu)
+  public boolean addACK (ClusterMemberID id_Socket, ID_TPDU id_tpdu)
   {
    if (!this.cglThread.esVecino (id_Socket))
         return false;
@@ -191,7 +191,7 @@ public class TablaAsentimientos
    * asentimiento.
    * @return true si había algún ID_TPDU en espera.
    */
-  public boolean addACKAID_TPDUEnEspera (ID_Socket id_Socket)
+  public boolean addACKAID_TPDUEnEspera (ClusterMemberID id_Socket)
   {
    // ALEX: Comprobar que es miembro del grupo local (hermano)
    if (!this.cglThread.esVecino (id_Socket))
@@ -217,25 +217,25 @@ public class TablaAsentimientos
 
   //==========================================================================
   /**
-   * Anota como recibido de idgl un HACK para el id_tpdu indicado, así como
-   * para todos los menores, por ser los HACK acumulativos. Comprueba que idgl
+   * Anota como recibido de clusterGroupID un HACK para el id_tpdu indicado, así como
+   * para todos los menores, por ser los HACK acumulativos. Comprueba que clusterGroupID
    * es hijo jerárquico.
    * @return true si se estaba esperando recibir asentimiento por id_tpdu o por
    * alguno menor.
    */
-  public boolean addHACK (IDGL idgl,ID_TPDU id_tpdu)
+  public boolean addHACK (ClusterGroupID clusterGroupID,ID_TPDU id_tpdu)
   {
-   if ((idgl==null)||(id_tpdu==null))
+   if ((clusterGroupID==null)||(id_tpdu==null))
        return false;
 
    // Obtener idglFuente para id_tpdu
-   IDGL idglFuente = this.dataThread.getIDGL (id_tpdu.getID_Socket());
+   ClusterGroupID idglFuente = this.dataThread.getIDGL (id_tpdu.getID_Socket());
 
    if (idglFuente == null)
         return false;
 
-   // Comprobar si idgl es hijo para idglFuente.
-   if (!this.cglThread.getCGHijos (idglFuente).containsKey (idgl))
+   // Comprobar si clusterGroupID es hijo para idglFuente.
+   if (!this.cglThread.getCGHijos (idglFuente).containsKey (clusterGroupID))
         return false; // No es hijo jerárquico
 
    SortedMap sortedMap = this.listaIDs_TPDUEnEsperaAsentimiento.getSublistaMenorIgual
@@ -253,9 +253,9 @@ public class TablaAsentimientos
      {
       regNext = (RegistroAsentimientos)iteradorRegistros.next();
       // Actualizar el registro. Borrar de HSACK
-      regNext.treeMapEnviadoHSACK.remove (idgl);
+      regNext.treeMapEnviadoHSACK.remove (clusterGroupID);
 
-      regNext.treeMapEnviadoHACK.put (idgl,null);
+      regNext.treeMapEnviadoHACK.put (clusterGroupID,null);
 
       bResult = true;
      } // Fin del while.
@@ -264,27 +264,27 @@ public class TablaAsentimientos
 
   //==========================================================================
   /**
-   * Anota como recibido de idgl un HSACK para el id_tpdu indicado, así como
-   * para todos los menores, por ser los HSACK acumulativos. Comprueba que idgl
+   * Anota como recibido de clusterGroupID un HSACK para el id_tpdu indicado, así como
+   * para todos los menores, por ser los HSACK acumulativos. Comprueba que clusterGroupID
    * es hijo jerárquico.
    * @return true si se estaba esperando recibir asentimiento por id_tpdu o por
    * alguno menor.
    */
-  public boolean addHSACK (IDGL idgl,ID_TPDU id_tpdu)
+  public boolean addHSACK (ClusterGroupID clusterGroupID,ID_TPDU id_tpdu)
   {
-   final String mn = "TablaAsentimientos.addHSACK (idgl,id_tpdu)";
+   final String mn = "TablaAsentimientos.addHSACK (clusterGroupID,id_tpdu)";
 
-   if ((idgl==null)||(id_tpdu==null))
+   if ((clusterGroupID==null)||(id_tpdu==null))
       return false;
 
    // Obtener idglFuente
-   IDGL idglFuente = this.dataThread.getIDGL (id_tpdu.getID_Socket());
+   ClusterGroupID idglFuente = this.dataThread.getIDGL (id_tpdu.getID_Socket());
 
    if (idglFuente==null)
         return false;
 
-   // Comprobar si idgl es hijo para idglFuente.
-   if (!this.cglThread.getCGHijos (idglFuente).containsKey (idgl))
+   // Comprobar si clusterGroupID es hijo para idglFuente.
+   if (!this.cglThread.getCGHijos (idglFuente).containsKey (clusterGroupID))
         return false; // No es hijo jerárquico
 
    SortedMap sortedMap = this.listaIDs_TPDUEnEsperaAsentimiento.getSublistaMenorIgual
@@ -304,11 +304,11 @@ public class TablaAsentimientos
       regNext = (RegistroAsentimientos)iteradorRegistros.next();
 
       // Si estaba registrado como HACK entonces no registrar como HSACK.
-      if (regNext.treeMapEnviadoHACK.containsKey (idgl))
+      if (regNext.treeMapEnviadoHACK.containsKey (clusterGroupID))
         continue;
 
       // Actualizar el registro.
-      regNext.treeMapEnviadoHSACK.put (idgl,null);
+      regNext.treeMapEnviadoHSACK.put (clusterGroupID,null);
       bResult = true;
      } // Fin del while.
 
@@ -317,13 +317,13 @@ public class TablaAsentimientos
 
   //==========================================================================
   /**
-   * idgl ha mandado HSACK para todos los TPDU que están en espera de
+   * clusterGroupID ha mandado HSACK para todos los TPDU que están en espera de
    * asentimiento.
    * @return true si había algún ID_TPDU en espera.
    */
-  public boolean addHSACKAID_TPDUEnEspera (IDGL idgl)
+  public boolean addHSACKAID_TPDUEnEspera (ClusterGroupID clusterGroupID)
   {
-   if (idgl==null)
+   if (clusterGroupID==null)
       return false;
 
    Iterator iteradorID_TPDU = this.listaIDs_TPDUEnEsperaAsentimiento.iteradorID_TPDU();
@@ -334,23 +334,23 @@ public class TablaAsentimientos
       id_tpduNext = (ID_TPDU)iteradorID_TPDU.next();
 
       // Obtener idglFuente
-      IDGL idglFuente = this.dataThread.getIDGL (id_tpduNext.getID_Socket());
+      ClusterGroupID idglFuente = this.dataThread.getIDGL (id_tpduNext.getID_Socket());
 
       if (idglFuente==null)
           continue;
 
-      // Comprobar si idgl es hijo para idglFuente.
-      if (!this.cglThread.getCGHijos (idglFuente).containsKey (idgl))
+      // Comprobar si clusterGroupID es hijo para idglFuente.
+      if (!this.cglThread.getCGHijos (idglFuente).containsKey (clusterGroupID))
         continue; // No es hijo jerárquico
 
       regNext = (RegistroAsentimientos)this.listaIDs_TPDUEnEsperaAsentimiento.get (id_tpduNext);
 
       // Si estaba registrado como HACK entonces no registrar como HSACK.
-      if (regNext.treeMapEnviadoHACK.containsKey (idgl))
+      if (regNext.treeMapEnviadoHACK.containsKey (clusterGroupID))
         continue;
 
      // Actualizar el registro.
-     regNext.treeMapEnviadoHSACK.put (idgl,null);
+     regNext.treeMapEnviadoHSACK.put (clusterGroupID,null);
    }
    return true;
   }
@@ -370,7 +370,7 @@ public class TablaAsentimientos
 
     ID_TPDU id_tpduNext = null;
     RegistroAsentimientos reg = null;
-    IDGL idglFuente = null;
+    ClusterGroupID idglFuente = null;
     while (iterador.hasNext())
     {
      // Comprobar si id_tpduNext ha sido asentido
@@ -406,7 +406,7 @@ public class TablaAsentimientos
 
     ID_TPDU id_tpduNext = null;
     RegistroAsentimientos reg = null;
-    IDGL idglFuente = null;
+    ClusterGroupID idglFuente = null;
     while (iterador.hasNext())
     {
      // Comprobar si id_tpduNext ha sido asentido
@@ -450,7 +450,7 @@ public class TablaAsentimientos
    * @return lista ordenada con los ID_TPDU eliminados, o vacía si no se eliminó
    * ninguno.
    */
-  public ListaOrdID_TPDU removeID_TPDUEnEsperaAsentimiento (ID_Socket id_socket,
+  public ListaOrdID_TPDU removeID_TPDUEnEsperaAsentimiento (ClusterMemberID id_socket,
                                                                 int iNumeroRafaga)
   {
     ListaOrdID_TPDU listaResult = new ListaOrdID_TPDU ();
@@ -494,7 +494,7 @@ public class TablaAsentimientos
    * @param id_socket
    * @return id_tpdu menor en espera para id_socket
    */
-  public ID_TPDU getID_TPDUMenorEnEsperaAsentimiento (ID_Socket id_socket)
+  public ID_TPDU getID_TPDUMenorEnEsperaAsentimiento (ClusterMemberID id_socket)
    {
     return this.listaIDs_TPDUEnEsperaAsentimiento.getID_TPDUMenor (id_socket);
    }
@@ -525,7 +525,7 @@ public class TablaAsentimientos
      if (reg==null)
         return false;
 
-     IDGL idglFuente = this.dataThread.getIDGL (id_TPDU.getID_Socket());
+     ClusterGroupID idglFuente = this.dataThread.getIDGL (id_TPDU.getID_Socket());
 
      if (idglFuente==null)
         return false;
@@ -565,7 +565,7 @@ public class TablaAsentimientos
      {
       regNext = (RegistroAsentimientos)iteradorRegistros.next();
 
-      // Todos los idgl que esten en HSACK pasan a HACK
+      // Todos los clusterGroupID que esten en HSACK pasan a HACK
       regNext.treeMapEnviadoHACK.putAll (regNext.treeMapEnviadoHSACK);
 
       // Borrarlos de HSACK
@@ -594,7 +594,7 @@ public class TablaAsentimientos
      if (reg==null)
         return false;
 
-     IDGL idglFuente = this.dataThread.getIDGL(id_TPDU.getID_Socket());
+     ClusterGroupID idglFuente = this.dataThread.getIDGL(id_TPDU.getID_Socket());
 
      if (idglFuente==null)
         return false;
@@ -638,7 +638,7 @@ public class TablaAsentimientos
   * @return un objeto treemap con los ID_Sockets o vacío.
    * <table border=1>
    *  <tr>  <td><b>Key:</b></td>
-   *	    <td>{@link ID_Socket}</td>
+   *	    <td>{@link ClusterMemberID}</td>
    *  </tr>
    *  <tr>  <td><b>Value:</b></td>
    *	    <td>NULL</td>
@@ -663,10 +663,10 @@ public class TablaAsentimientos
 
     // Comprobar para cada uno de los socket´s vecinos si ha enviado ACK.
     Iterator iterador = this.cglThread.getTreeMapID_SocketVecinos().keySet().iterator ();
-    ID_Socket id_SocketNext = null;
+    ClusterMemberID id_SocketNext = null;
     while (iterador.hasNext() || (iDiferencia>0))
     {
-     id_SocketNext = (ID_Socket) iterador.next ();
+     id_SocketNext = (ClusterMemberID) iterador.next ();
      if (!(reg.treeMapEnviadoACK.containsKey (id_SocketNext)))
           {
            treeMapResult.put (id_SocketNext,null);
@@ -685,7 +685,7 @@ public class TablaAsentimientos
   * @return un objeto treemap con los IDGLs o vacío.
    * <table border=1>
    *  <tr>  <td><b>Key:</b></td>
-   *	    <td>{@link IDGL}</td>
+   *	    <td>{@link ClusterGroupID}</td>
    *  </tr>
    *  <tr>  <td><b>Value:</b></td>
    *	    <td>NULL</td>
@@ -700,7 +700,7 @@ public class TablaAsentimientos
                                 this.listaIDs_TPDUEnEsperaAsentimiento.get (id_TPDU);
   if (reg!=null)
   {
-    IDGL idglFuente = this.dataThread.getIDGL(id_TPDU.getID_Socket());
+    ClusterGroupID idglFuente = this.dataThread.getIDGL(id_TPDU.getID_Socket());
     if (idglFuente==null)
         return treeMapResult;
 
@@ -715,10 +715,10 @@ public class TablaAsentimientos
     // Comprobar para cada uno de los hosts hijos si ha enviado algún tipo de
     // asentimiento.
     Iterator iterador = this.cglThread.getCGHijos(idglFuente).keySet().iterator ();
-    IDGL idglNext = null;
+    ClusterGroupID idglNext = null;
     while (iterador.hasNext() || (iDiferencia>0))
     {
-     idglNext = (IDGL) iterador.next ();
+     idglNext = (ClusterGroupID) iterador.next ();
 
      if (!(reg.treeMapEnviadoHACK.containsKey (idglNext))
          &&
@@ -740,7 +740,7 @@ public class TablaAsentimientos
   * @return  un objeto treemap con los IDGLs o vacío.
    * <table border=1>
    *  <tr>  <td><b>Key:</b></td>
-   *	    <td>{@link IDGL}</td>
+   *	    <td>{@link ClusterGroupID}</td>
    *  </tr>
    *  <tr>  <td><b>Value:</b></td>
    *	    <td>NULL</td>
@@ -756,7 +756,7 @@ public class TablaAsentimientos
 
   if (reg!=null)
   {
-    IDGL idglFuente = this.dataThread.getIDGL(id_TPDU.getID_Socket());
+    ClusterGroupID idglFuente = this.dataThread.getIDGL(id_TPDU.getID_Socket());
 
     if (idglFuente==null)
         return treeMapResult;
@@ -771,10 +771,10 @@ public class TablaAsentimientos
     // Comprobar para cada uno de los hosts hijos si ha enviado algún tipo de
     // asentimiento.
     Iterator iterador = this.cglThread.getCGHijos(idglFuente).keySet().iterator ();
-    IDGL idglNext = null;
+    ClusterGroupID idglNext = null;
     while (iterador.hasNext() || (iDiferencia>0))
     {
-     idglNext = (IDGL) iterador.next ();
+     idglNext = (ClusterGroupID) iterador.next ();
      if (!(reg.treeMapEnviadoHACK.containsKey (idglNext)))
           {
            treeMapResult.put (idglNext,null);
@@ -823,12 +823,12 @@ public class TablaAsentimientos
 
   //==========================================================================
   /**
-   * Implementación de la interfaz ID_SocketListener. Elimina toda la
+   * Implementación de la interfaz ClusterMemberListener. Elimina toda la
    * información sobre  id_socket.<br>
    * Este método es ejecutado por el thread <b>"ThreadCGL"</b>
    * @param id_socket
    */
-   public void removeID_Socket (ID_Socket id_socket)
+   public void removeID_Socket (ClusterMemberID id_socket)
    {
      // Eliminar todos los id_tpdu que esten pendientes de asentimiento cuya
      // fuente es id_socket
@@ -848,23 +848,23 @@ public class TablaAsentimientos
 
   //==========================================================================
   /**
-   * Implementación de la interfaz IDGLListener. Elimina toda la información
-   * sobre idgl.<br>
+   * Implementación de la interfaz ClusterGroupListener. Elimina toda la información
+   * sobre clusterGroupID.<br>
    * Este método es ejecutado por el thread <b>"ThreadCGL"</b>
-   * @param idgl
+   * @param clusterGroupID
    */
-   public void removeIDGL(IDGL idgl)
+   public void removeIDGL(ClusterGroupID clusterGroupID)
    {
      // Recorrer todos los registros de asentimientos y eliminar toda referencia
-     // a idgl.
+     // a clusterGroupID.
      Iterator iterador = listaIDs_TPDUEnEsperaAsentimiento.iteradorObjetos();
      RegistroAsentimientos regNext = null;
      while (iterador.hasNext ())
      {
          regNext = (RegistroAsentimientos) iterador.next ();
-         // Eliminar las referencias a idgl
-         regNext.treeMapEnviadoHACK.remove (idgl);
-         regNext.treeMapEnviadoHSACK.remove (idgl);
+         // Eliminar las referencias a clusterGroupID
+         regNext.treeMapEnviadoHACK.remove (clusterGroupID);
+         regNext.treeMapEnviadoHSACK.remove (clusterGroupID);
      }
    }
 
@@ -900,7 +900,7 @@ public class TablaAsentimientos
     * Almacena la información sobre los id_socket que han enviado ACK.
     * <table border=1>
     *  <tr>  <td><b>Key:</b></td>
-    *	    <td>{@link ID_Socket}</td>
+    *	    <td>{@link ClusterMemberID}</td>
     *  </tr>
     *  <tr>  <td><b>Value:</b></td>
     *	    <td>NULL</td>
@@ -910,10 +910,10 @@ public class TablaAsentimientos
    TreeMap treeMapEnviadoACK   = null;
 
    /**
-    * Almacena la información sobre los IDGL que han enviado HACK
+    * Almacena la información sobre los ClusterGroupID que han enviado HACK
     * <table border=1>
     *  <tr>  <td><b>Key:</b></td>
-    *	    <td>{@link IDGL}</td>
+    *	    <td>{@link ClusterGroupID}</td>
     *  </tr>
     *  <tr>  <td><b>Value:</b></td>
     *	    <td>NULL</td>
@@ -923,10 +923,10 @@ public class TablaAsentimientos
    TreeMap treeMapEnviadoHACK  = null;
 
    /**
-    * Almacena la información sobre los IDGL que han enviado HSACK
+    * Almacena la información sobre los ClusterGroupID que han enviado HSACK
     * <table border=1>
     *  <tr>  <td><b>Key:</b></td>
-    *	    <td>{@link IDGL}</td>
+    *	    <td>{@link ClusterGroupID}</td>
     *  </tr>
     *  <tr>  <td><b>Value:</b></td>
     *	    <td>NULL</td>
@@ -965,7 +965,7 @@ public class TablaAsentimientos
     */
    public String toString ()
    {
-    return "ID_Socket han enviado ACK  : " + treeMapEnviadoACK +
+    return "ClusterMemberID han enviado ACK  : " + treeMapEnviadoACK +
            "\nIDGLs han enviado HACK : " + treeMapEnviadoHACK +
            "\nIDGLs han enviado HSACK: " + treeMapEnviadoHSACK +
            "\nEnviadoHSACK: "            + bEnviadoHSACK +

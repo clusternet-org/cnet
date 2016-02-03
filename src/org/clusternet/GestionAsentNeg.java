@@ -402,7 +402,7 @@ public class GestionAsentNeg implements TimerHandler
    * el especificado.
    * @param id_socket id_socket a eliminar.
    */
-  public void removeID_Socket (ID_Socket id_socket)
+  public void removeID_Socket (ClusterMemberID id_socket)
   {
    this.listaID_TPDUNoRecibidos.getSublista(id_socket).clear();
 
@@ -566,7 +566,7 @@ public class GestionAsentNeg implements TimerHandler
            // Key = id_socket; value = ListaOrdID_TPDU
            TreeMap treeMapID_Socket = new TreeMap();
            ID_TPDU id_tpduNext;
-           ID_Socket id_socketNext;
+           ClusterMemberID id_socketNext;
            ListaOrdID_TPDU listaOrdID_TPDUNext;
            while (iteradorID_TPDU.hasNext())
             {
@@ -587,7 +587,7 @@ public class GestionAsentNeg implements TimerHandler
             TPDUHNACK tpduHNACK;
             while (iteradorID_Socket.hasNext())
              {
-              id_socketNext = (ID_Socket)iteradorID_Socket.next();
+              id_socketNext = (ClusterMemberID)iteradorID_Socket.next();
               listaOrdID_TPDUNext = (ListaOrdID_TPDU)treeMapID_Socket.get (id_socketNext);
               /* Puede dar problemas de espacio. */
               tpduHNACK = TPDUHNACK.crearTPDUHNACK (this.socketClusterNetImp,listaOrdID_TPDUNext);

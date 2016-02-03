@@ -42,7 +42,7 @@ import java.io.IOException;
 /**
  * RxQueue es un buffer de recepción para los datos que se obtienen
  * del canal multicast, para cada socket Id_Socket del que se obtenga
- * datos se crea un ID_SocketInputStream donde se almacena los datos para
+ * datos se crea un ClusterMemberInputStream donde se almacena los datos para
  * que el usuario pueda acceder a ellos mediante los métodos sobreescritos
  * de la clase InputStream.<br>
  * Esta clase es thread-safe.
@@ -61,7 +61,7 @@ class RxQueue implements TimerHandler
 {
 
   /**
-   * TreeMap key: ID_Socket value: ID_SocketInputStream
+   * TreeMap key: ClusterMemberID value: ClusterMemberInputStream
    */
   private TreeMap treemap = null;
 
@@ -217,15 +217,15 @@ class RxQueue implements TimerHandler
   /**
    * Añadir un objeto Buffer y Address del emisor del buffer al final
    * de la cola.<br>
-   * <b> NI EL BUFFER NI EL ID_Socket SE COPIAN.</b>
+   * <b> NI EL BUFFER NI EL ClusterMemberID SE COPIAN.</b>
    * @param emisor El objeto Address del emisor que envió el Buffer.
    * @param buf El Buffer
    * @param bFinTransmision Bit de Fin de Transmision.
    * @return true si la operación se ha realizado con éxito, false en caso contrario
    */
-  boolean add(ID_Socket id_socket,Buffer buf,boolean bFinTransmision)
+  boolean add(ClusterMemberID id_socket,Buffer buf,boolean bFinTransmision)
   {
-    ID_SocketInputStream in = null;
+    ClusterMemberInputStream in = null;
 
     try
     {
@@ -252,14 +252,14 @@ class RxQueue implements TimerHandler
       if((this.socket.getModo() == ClusterNet.MODE_RELIABLE)||(this.socket.getModo()==ClusterNet.MODE_DELAYED_RELIABLE))
       {
         if(this.treemap.containsKey(id_socket))
-          in = (ID_SocketInputStream)this.treemap.get(id_socket);
+          in = (ClusterMemberInputStream)this.treemap.get(id_socket);
 
         else
         {
-          in = new ID_SocketInputStream(id_socket,this.socket);
+          in = new ClusterMemberInputStream(id_socket,this.socket);
           this.treemap.put(id_socket,in);
           //Log.log("NUEVO ID_SOCKETIMPUTASTREAM para  el socket:" +id_socket,"");
-          //Notificar Nuevo ID_SocketInputStream
+          //Notificar Nuevo ClusterMemberInputStream
           this.sendPTMFEventId_SocketInputStream(in);
        }
 
@@ -357,12 +357,12 @@ class RxQueue implements TimerHandler
 
   //==========================================================================
   /**
-   * Eliminar un ID_SocketInputStream asociado a un ID_Socket.
+   * Eliminar un ClusterMemberInputStream asociado a un ClusterMemberID.
    * NOTA: ES LLAMADO POR ID_SCOKETINPUTSTREAM EN EL CLOSE()
    *        Y POR DATOSTHREAD
    * @param id_socket El objeto h aeliminar.
    */
-  void remove(ID_Socket id_socket)
+  void remove(ClusterMemberID id_socket)
   {
     try
     {
@@ -372,9 +372,9 @@ class RxQueue implements TimerHandler
      //Modo Fiable
      if((this.socket.getModo() == ClusterNet.MODE_RELIABLE)||(this.socket.getModo()==ClusterNet.MODE_DELAYED_RELIABLE))
      {
-      //Si hay datos en el flujo ID_SocketInputStream asociado,
-      //Añadir el ID_Socket a eliminar al treemap de eliminación ...
-      ID_SocketInputStream id = (ID_SocketInputStream)this.treemap.get(id_socket);
+      //Si hay datos en el flujo ClusterMemberInputStream asociado,
+      //Añadir el ClusterMemberID a eliminar al treemap de eliminación ...
+      ClusterMemberInputStream id = (ClusterMemberInputStream)this.treemap.get(id_socket);
       if(id!=null)
         //Cerrar el flujo...
         id.closeStream();
@@ -384,7 +384,7 @@ class RxQueue implements TimerHandler
       //Log.log("Eliminado el flujo para el socket:" +id_socket,"");
 
      }
-     //NOTA: El tamaño se actualiza cuando se lee del flujo ID_SocketInputStream.
+     //NOTA: El tamaño se actualiza cuando se lee del flujo ClusterMemberInputStream.
 
      return;
     }
@@ -427,9 +427,9 @@ class RxQueue implements TimerHandler
    * Envía un evento ClusterNetEvent del tipo EVENTO_DATOS_RECIBIDOS
    * con una cadena informativa.
    * @param mensaje Mensaje Informativo
-   * @param id_socket Objeto ID_Socket que ha sido eliminado
+   * @param id_socket Objeto ClusterMemberID que ha sido eliminado
    */
-   private void sendPTMFEventId_SocketInputStream(ID_SocketInputStream id)
+   private void sendPTMFEventId_SocketInputStream(ClusterMemberInputStream id)
    {
     if (id == null)
       return;
@@ -438,7 +438,7 @@ class RxQueue implements TimerHandler
     {
      //Log.log("\n\nENVIANDO EVENTGO","");
 
-     ClusterNetEventMemberInputStream evento = new ClusterNetEventMemberInputStream(this.socket,"Nuevo ID_SocketInputStream",id);
+     ClusterNetEventMemberInputStream evento = new ClusterNetEventMemberInputStream(this.socket,"Nuevo ClusterMemberInputStream",id);
 
      Iterator iterator = this.listaPTMFID_SocketInputStreamListeners.listIterator();
      while(iterator.hasNext())
@@ -501,7 +501,7 @@ class RxQueue implements TimerHandler
    * Obtiene el siguiente dato recibido.<br>
    * ESTE MÉTODO SOLO ES VÁLIDO EN EL MODO NO-FIABLE.<BR>
    * Para averiguar si hay datos en la cola utilice la función getTamaño()<br>
-   * @param id_socket ID_Socket del socket emisor de los datos
+   * @param id_socket ClusterMemberID del socket emisor de los datos
    * @param buf Buffer con los datos emitidos por el socket Id_Socket
    * @return true si se ha realizado la operación con éxito, falso
    *  en caso contrario.
@@ -570,9 +570,9 @@ class RxQueue implements TimerHandler
 
   /**
    * Obtiene el siguiente flujo ID_socketInputStream
-   * @return ID_SocketInputStream
+   * @return ClusterMemberInputStream
    */
-  ID_SocketInputStream nextID_SocketInputStream()
+  ClusterMemberInputStream nextID_SocketInputStream()
   {
     Iterator iterator = null;
     try
@@ -587,7 +587,7 @@ class RxQueue implements TimerHandler
 
       while(iterator.hasNext())
       {
-         ID_SocketInputStream in = (ID_SocketInputStream)iterator.next();
+         ClusterMemberInputStream in = (ClusterMemberInputStream)iterator.next();
 
          if(in.available() > 0) //¿Tiene este buffer datos, palomo?
           return in;

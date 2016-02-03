@@ -46,7 +46,7 @@ public class ClusterNetEvent extends EventObject
   /** Evento notificación ID_SOCKET*/
   public static final int EVENTO_ID_SOCKET = 2;
 
- /** Identificativo de una notificación de un IDGL*/
+ /** Identificativo de una notificación de un ClusterGroupID*/
   public static final int EVENTO_IDGL = 3;
 
  /** Identificativo de notificación de datos recibidos*/

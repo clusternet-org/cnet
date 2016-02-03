@@ -42,8 +42,8 @@ import java.lang.Math;
  public class JDialogRecepcion extends JDialog
  {
 
-  /** ID_Socket */
-  ID_Socket id_socket = null;
+  /** ClusterMemberID */
+  ClusterMemberID id_socket = null;
 
   /** FileRecepcion */
   private FileRecepcion fileRecepcion = null;
@@ -130,7 +130,7 @@ import java.lang.Math;
   * @param modal Boolean que especifica si el diálogo es modal o no
   */
  public JDialogRecepcion(FileRecepcion fileRecepcion,Frame frame, String title,
-       boolean modal,String sFileName, long lFilesize,Icon icon, ID_Socket id_socket) {
+       boolean modal,String sFileName, long lFilesize,Icon icon, ClusterMemberID id_socket) {
 
     super(frame, title, modal);
     try  {

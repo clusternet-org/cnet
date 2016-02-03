@@ -42,8 +42,8 @@ import javax.swing.JOptionPane;
 
 import org.clusternet.Address;
 import org.clusternet.Buffer;
-import org.clusternet.ID_Socket;
-import org.clusternet.ID_SocketInputStream;
+import org.clusternet.ClusterMemberID;
+import org.clusternet.ClusterMemberInputStream;
 import org.clusternet.Log;
 import org.clusternet.ClusterNetInputStream;
 import org.clusternet.ClusterNetOutputStream;
@@ -151,7 +151,7 @@ public class EmisorFTPMulticast extends Thread
 
 
   /**
-   * TreeMap de Threads ThreadRecepcion. KEY= ID_SocketInputStream. VALUE=FileRecepcion
+   * TreeMap de Threads ThreadRecepcion. KEY= ClusterMemberInputStream. VALUE=FileRecepcion
    *  UTILIZADO EN MODO FIABLE.
    */
   private TreeMap treemapID_SocketInputStream = null;
@@ -490,10 +490,10 @@ public class EmisorFTPMulticast extends Thread
     this.treemapID_Socket = new TreeMap();
 
 
-   // SI EL ID_Socket no está en el treemap, Significa CONEXIÓN NUEVA....
+   // SI EL ClusterMemberID no está en el treemap, Significa CONEXIÓN NUEVA....
    if(!this.treemapID_Socket.containsKey(reg.getID_Socket()))
    {
-       Log.log("NUEVO ID_Socket: "+reg.getID_Socket(),"");
+       Log.log("NUEVO ClusterMemberID: "+reg.getID_Socket(),"");
        Buffer buf = reg.getBuffer();
 
        //Comprobar IDFTP
@@ -549,9 +549,9 @@ public class EmisorFTPMulticast extends Thread
  //==========================================================================
  /**
   * Eliminar un FileRecepcion. MODO NO FIABLE.
-  * @param ID_Socket
+  * @param ClusterMemberID
   */
- void removeFileRecepcion(ID_Socket id_socket)
+ void removeFileRecepcion(ClusterMemberID id_socket)
  {
     this.treemapID_Socket.remove(id_socket);
  }
@@ -560,7 +560,7 @@ public class EmisorFTPMulticast extends Thread
  /**
   * Eliminar un FileRecepcion. MODO FIABLE.
   */
-  void removeFileRecepcion(ID_SocketInputStream idIn)
+  void removeFileRecepcion(ClusterMemberInputStream idIn)
   {
     //Log.log("Remove fileRecepcion: "+idIn,"");
 
@@ -627,13 +627,13 @@ public class EmisorFTPMulticast extends Thread
     if( evento.esAñadido())
     {
        //Log.log("IDGLS: "+cFtp.getFTP().idgls,"");
-       Log.log(mn,"Nuevo IDGL: "+evento.getIDGL());
+       Log.log(mn,"Nuevo ClusterGroupID: "+evento.getIDGL());
 
     }
     else
     {
        //Log.log("IDGLS: "+cFtp.getFTP().idgls,"");
-       Log.log(mn,"IDGL eliminado: "+evento.getIDGL());
+       Log.log(mn,"ClusterGroupID eliminado: "+evento.getIDGL());
     }
  }
 
@@ -648,12 +648,12 @@ public class EmisorFTPMulticast extends Thread
     if( evento.esAñadido())
     {
        //Log.log("ID_Sockets: "+cFtp.getFTP().id_sockets,"");
-       Log.log(mn,"Nuevo ID_Socket: "+evento.getID_Socket());
+       Log.log(mn,"Nuevo ClusterMemberID: "+evento.getID_Socket());
     }
     else
     {
       //Log.log("ID_Sockets: "+cFtp.getFTP().id_sockets,"");
-      Log.log(mn,"ID_Socket eliminado: "+evento.getID_Socket());
+      Log.log(mn,"ClusterMemberID eliminado: "+evento.getID_Socket());
     }
 
  }
@@ -684,7 +684,7 @@ public class EmisorFTPMulticast extends Thread
    if ( treemapID_SocketInputStream == null)
       this.treemapID_SocketInputStream = new TreeMap();
 
-   ID_SocketInputStream idIn = evento.getID_SocketInputStream();
+   ClusterMemberInputStream idIn = evento.getID_SocketInputStream();
    if (idIn == null)
    {
     //Log.log("\n\nNUEVO ID_SOCKETINPUTSTREAM: NULL","");

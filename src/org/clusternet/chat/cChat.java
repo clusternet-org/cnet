@@ -1194,7 +1194,7 @@ public class cChat implements I18n
 			try {
 				jMenuItemIDGLs= new JMenuItem("Groups");
   			jMenuItemIDGLs.setName("jMenuItemIDGLs");
-  			jMenuItemIDGLs.setToolTipText("IDGL (Identificadores de Grupos Locales) conocidos.");
+  			jMenuItemIDGLs.setToolTipText("ClusterGroupID (Identificadores de Grupos Locales) conocidos.");
   			jMenuItemIDGLs.setMnemonic('D');
  				//jMenuItemID_Sockets.addActionListener(actionListenerCerrar);
   		}

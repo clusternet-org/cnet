@@ -99,9 +99,9 @@ public class ClusterNet {
 	  public static final int TPDU_MAX_SIZE = 1024 *63;
 	 /**
 	   * Número máximo de bytes que pueden viajar en un TPDU de datos. Hay que reservar
-	   * suficientes bytes para enviar identificadores de idgl o id_socket que no han
+	   * suficientes bytes para enviar identificadores de clusterGroupID o id_socket que no han
 	   * enviado asentimiento, para el caso en el que necesite ser rtx. Al menos deberá
-	   * caber un identificador idgl o id_socket (el más grande de los dos).
+	   * caber un identificador clusterGroupID o id_socket (el más grande de los dos).
 	   * Reservamos para 20 identificadores: 20 * 6 = 120 bytes
 	   */
 	  public static final int TPDU_MAX_SIZE_PAYLOAD = TPDU_MAX_SIZE
@@ -265,7 +265,7 @@ public class ClusterNet {
 	  public static final long RATIO_USUARIO_BYTES_X_SEG  = 1024*1024*100;
 
 	 /**
-	  * Tiempo máximo que puede emplear un socket o idgl nuevo en sincronizarse
+	  * Tiempo máximo que puede emplear un socket o clusterGroupID nuevo en sincronizarse
 	  * con los emisores.
 	  */
 	  public static final long TIEMPO_MAXIMO_SINCRONIZACION = RTT*OPORTUNIDADES_RTT + T_MAX_TPDU_SIN_ACK;
@@ -538,9 +538,9 @@ public class ClusterNet {
 
   //==========================================================================
   /**
-   * Devuelve un objeto ClusterNetInputStream, un flujo de entrada para este socket.
-   * @return Un flujo de entrada ClusterNetInputStream para leer bytes desde este socket.
-   * @exception IOException Se lanza si no se puede crear el flujo de entrada.
+   * Return a objet ClusterNetInputStream, a input stream for this cluster socket.
+   * @return ClusterNetInputStream , to read bytes from this cluster socker.
+   * @exception IOException throw if the socket can't create the stream.
    */
   public ClusterNetInputStream getClusterInputStream() throws IOException
   {
@@ -549,14 +549,41 @@ public class ClusterNet {
 
   //==========================================================================
   /**
-   * Devuelve un objeto ClusterNetOutputStream, un flujo de salida para este socket.
-   * @return Un flujo de salida ClusterNetOutputStream para escribir bytes en este socket.
-   * @exception IOException Se lanza si no se puede crear el flujo de salida.
+   * Return a objet ClusterNetOutputStream, a output stream for this cluster socket.
+   * @return ClusterNetOutputStream , to write bytes to this cluster socker.
+   * @exception IOException throw if the socket can't create the stream.
    */
   public ClusterNetOutputStream getClusterOutputStream() throws IOException
   {
     return socketClusterNetImp.getMulticastOutputStream();
   }
+  
+  
+  //==========================================================================
+  /**
+   * Return a objet MemberInputStream, a input stream for a given ClusterMemberID
+   * @return MemberInputStream , to read bytes from the member given.
+   * @exception IOException throw if the socket can't create the stream.
+   */
+  public MemberInputStream getMemberInputStream(ClusterMemberID id) throws IOException
+  {
+    return null;
+    //TODO 
+  }
+
+  //==========================================================================
+  /**
+   * Return a objet MemberOutputStream, a output stream for a given ClusterMemberID
+   * @return MemberOutputStream , to write bytes to the member given.
+   * @exception IOException throw if the socket can't create the stream.
+   */
+  public MemberOutputStream getMemberOutputStream(ClusterMemberID id) throws IOException
+  {
+    return null;
+    //TODO 
+  }
+  
+  
 
   //==========================================================================
   /**
@@ -815,7 +842,7 @@ public class ClusterNet {
   * @param i El nivel de depuracion. Debe de tomar uno de los sigioentes valores hexadecimales:
   *  NO DEPURAR      = 0;
   *  TODO            = 0xFFFFFFFF;
-  *  IDGL            = 0x00000001;
+  *  ClusterGroupID            = 0x00000001;
   *  TPDU            = 0x00000002;
   *  TPDU_CGL        = 0x00000004;
   *  TPDU_DATOS      = 0x00000008;
@@ -905,7 +932,7 @@ public class ClusterNet {
    * contiene el identificador del socket que envió los datos y los propios datos.<br>
    * La llamada a este método es bloqueante, bloquea el hilo llamante hasta que
    * no halla ningún dato que leer.
-   * @param id_socket El ID_Socket del socket que envía la información
+   * @param id_socket El ClusterMemberID del socket que envía la información
    * @param datos Objeto Buffer con los datos recibidos del socket id_socket.
    * @return True si se han obtenidos datos, False en caso contrario
    * @exception IOException Se lanza si no se puede crear el flujo de salida.

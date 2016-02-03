@@ -52,7 +52,7 @@ class RegistroVectorDatos
  /**
   * Crea una instancia con los valores indicados.
   */
- public RegistroVectorDatos (TPDUDatos tpduDatosParam,ID_Socket id_SocketParam)
+ public RegistroVectorDatos (TPDUDatos tpduDatosParam,ClusterMemberID id_SocketParam)
  {
   this.tpduDatos = tpduDatosParam;
   this.id_Socket = id_SocketParam;
@@ -64,5 +64,5 @@ class RegistroVectorDatos
  TPDUDatos tpduDatos = null;
 
  /** Dirección del cliente que envío el TPDUDatos. */
- ID_Socket id_Socket = null;
+ ClusterMemberID id_Socket = null;
 }

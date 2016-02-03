@@ -4,12 +4,11 @@
 //
 //----------------------------------------------------------------------------
 //
-//	Fichero: RegistroIDGL_TreeMap.java  1.0 24/11/99
+//	Fichero: ClusterGroupTreeMap.java  1.0 17/11/99
 //
 //
-//	Descripción: Clase RegistroIGDL_TreeMap
+//	Descripción: ClusterGroupID
 //
-// 	
 // 	Authors: 
 //		 Alejandro García-Domínguez (alejandro.garcia.dominguez@gmail.com)
 //		 Antonio Berrocal Piris (antonioberrocalpiris@gmail.com)
@@ -30,6 +29,7 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
+//
 //----------------------------------------------------------------------------
 
 package org.clusternet;
@@ -37,45 +37,21 @@ package org.clusternet;
 import java.util.TreeMap;
 
 /**
- * <p>Title: ClusterNet v1.1</p>
- * <p>Description: Protocolo de Transporte Multicast Fiable</p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: </p>
- * @author unascribed
- * @version 1.1
+ * Esta clase encapsula un objeto ClusterGroupID y otro TreeMap,
+ * se utiliza como VALUE en el TreeMap treeMapIDGLVecinos
+ * dentro de la clase CGLThread
  */
+class ClusterGroupTreeMap
+{
+  /** ClusterGroupID */
+  ClusterGroupID clusterGroupID = null;
 
+  /** TreeMap */
+  TreeMap treemap = null;
 
-  /**
-   * Clase RegistroIDGL_TreeMap.<br>
-   * Almacena un ClusterGroupID y un TreMap con ClusterGroupID.
-   */
-   public class RegistroIDGL_TreeMap
-   {
-      ClusterGroupID clusterGroupID = null;
-      TreeMap treemap = null;
-
-      RegistroIDGL_TreeMap(ClusterGroupID clusterGroupID,TreeMap treemap)
-      {
-       this.clusterGroupID = clusterGroupID;
-       this.treemap = treemap;
-      }
-
-      /**
-       * Obtiene el ClusterGroupID
-       * @return
-       */
-      public ClusterGroupID getIDGL()
-      {
-        return clusterGroupID;
-      }
-
-      /**
-       * Obtiene el treemap
-       * @return
-       */
-      public TreeMap getTreeMap()
-      {
-        return treemap;
-      }
-   }
+  ClusterGroupTreeMap(ClusterGroupID clusterGroupID, TreeMap treemap)
+  {
+    this.clusterGroupID = clusterGroupID;
+    this.treemap = treemap;
+  }
+}

@@ -100,7 +100,7 @@ public class Address implements Cloneable,Comparable
    *  especificado.
 PROBAR SI HACE RESOLUCI�N DE NOMBRES (DNS)
    */
-  public Address(ID_Socket id_socket) throws UnknownHostException
+  public Address(ClusterMemberID id_socket) throws UnknownHostException
   {
     super();
     final String mn = "Address.Address (id_socket)";
@@ -353,20 +353,20 @@ PROBAR SI HACE RESOLUCI�N DE NOMBRES (DNS)
 
   //==================================================================
   /**
-   * Devuelve una instancia de ID_Socket que representa esta direcci�n
+   * Devuelve una instancia de ClusterMemberID que representa esta direcci�n
    */
-  public ID_Socket toID_Socket ()
+  public ClusterMemberID toID_Socket ()
   {
    Buffer buf = new Buffer (this.inetAddress.getAddress ());
-   return new ID_Socket (new IPv4 (buf),this.inetPort);
+   return new ClusterMemberID (new IPv4 (buf),this.inetPort);
   }
 
 
   //==================================================================
   /**
-   * Devuelve una instancia de IDGL que representa esta direcci�n
+   * Devuelve una instancia de ClusterGroupID que representa esta direcci�n
    */
-  public IDGL toIDGL()
+  public ClusterGroupID toIDGL()
   {
     Buffer buf = null;
     try
@@ -379,12 +379,12 @@ PROBAR SI HACE RESOLUCI�N DE NOMBRES (DNS)
     catch(ClusterNetExcepcion e){;}
     catch(ClusterNetInvalidParameterException e){;}
 
-    return new IDGL(buf,(byte)0/*+ttl*/);
+    return new ClusterGroupID(buf,(byte)0/*+ttl*/);
   }
 
   //==================================================================
   /**
-   * Devuelve una instancia de ID_Socket que representa esta direcci�n
+   * Devuelve una instancia de ClusterMemberID que representa esta direcci�n
    */
   public IPv4 toIPv4 ()
   {
@@ -411,7 +411,7 @@ PROBAR SI HACE RESOLUCI�N DE NOMBRES (DNS)
 
   Address dirLocal = new Address (InetAddress.getLocalHost(),299);
 
-  ID_Socket id_Socket = dirLocal.toID_Socket ();
+  ClusterMemberID id_Socket = dirLocal.toID_Socket ();
   } catch (ClusterNetInvalidParameterException e) {Log.log (mn,e.toString());}
     catch (UnknownHostException e) {Log.log (mn,e.toString());}
  } // Fin de main

@@ -99,7 +99,7 @@ class TPDU implements Cloneable
    * local tiene que tener un nº identificativo único e independiente de cualquier
    * otro grupo local.
    */
-  protected IDGL ID_GRUPO_LOCAL = null;
+  protected ClusterGroupID ID_GRUPO_LOCAL = null;
 
   /** Tipo (2 bits): 01 (TPDU DATOS) */
   protected byte TIPO  = ClusterNet.TPDU_CGL;
@@ -153,23 +153,23 @@ class TPDU implements Cloneable
    * facilitada en los argumentos.
    * @param puertoMulticast
    * @param puertoUnicast
-   * @param idgl
+   * @param clusterGroupID
    * @exception ClusterNetExcepcion
    * @exception ClusterNetInvalidParameterException lanzada si algún parámetro tienen un
    * valor no válido.
    */
-  protected TPDU(int puertoMulticast,int puertoUnicast,IDGL idgl)
+  protected TPDU(int puertoMulticast,int puertoUnicast,ClusterGroupID clusterGroupID)
                              throws  ClusterNetInvalidParameterException, ClusterNetExcepcion
   {
     super();
 
-    final String  mn = "TPDU.TPDU(puertoMcast,puertoUnicast,idgl,tamañoTotal)";
+    final String  mn = "TPDU.TPDU(puertoMcast,puertoUnicast,clusterGroupID,tamañoTotal)";
 
 
     // TPDU
     this.PUERTO_MULTICAST = puertoMulticast;
     this.PUERTO_UNICAST   = puertoUnicast;
-    this.ID_GRUPO_LOCAL   = idgl;
+    this.ID_GRUPO_LOCAL   = clusterGroupID;
     this.LONGITUD = 0;
     this.CHEKSUM = 0;
     this.VERSION = ClusterNet.VERSION;
@@ -434,17 +434,17 @@ class TPDU implements Cloneable
   //==========================================================================
   /**
    * El buffer pasado por argumento contiene un TPDU recibido de la red.
-   * Esta función extrae el valor del compo IDGL.
+   * Esta función extrae el valor del compo ClusterGroupID.
    * @param buf buffer que contiene un TPDU.
-   * @return idgl
+   * @return clusterGroupID
    * @exception ClusterNetExcepcion lanzada si hubo un error al leer el buffer
    */
-  static IDGL getIDGL(Buffer buf) throws ClusterNetExcepcion
+  static ClusterGroupID getIDGL(Buffer buf) throws ClusterNetExcepcion
   {
    final String mn ="TPDU.getIDGrupoLocal";
 
 
-   IDGL idgl = null;
+   ClusterGroupID clusterGroupID = null;
 
 
 
@@ -460,7 +460,7 @@ class TPDU implements Cloneable
       //
       // 5º, 6º, 7º, 8º, 9º y 10º BYTES: ID_GRUPO_LOCAL (48 bits)
       //
-      idgl = new IDGL (new Buffer(buf.getBytes(4,(byte) 6)),(byte)0);
+      clusterGroupID = new ClusterGroupID (new Buffer(buf.getBytes(4,(byte) 6)),(byte)0);
    }
    catch(ClusterNetInvalidParameterException e)
    {
@@ -468,7 +468,7 @@ class TPDU implements Cloneable
    }
 
 
-   return idgl;
+   return clusterGroupID;
   }
 
   //==========================================================================
@@ -491,9 +491,9 @@ class TPDU implements Cloneable
 
    //==========================================================================
    /**
-   * Devuelve el IDGL de este TPDU.
+   * Devuelve el ClusterGroupID de este TPDU.
    */
-   IDGL getIDGL() { return this.ID_GRUPO_LOCAL;  }
+   ClusterGroupID getIDGL() { return this.ID_GRUPO_LOCAL;  }
 
   //==========================================================================
   /**
@@ -521,7 +521,7 @@ class TPDU implements Cloneable
    * <ul>
    *   <li>Puerto Multicast</li>
    *   <li>Puerto Unicast</li>
-   *   <li>IDGL</li>
+   *   <li>ClusterGroupID</li>
    *   <li>Longiud</li>
    *   <li>Cheksum</li>
    *   <li>Versión</li>

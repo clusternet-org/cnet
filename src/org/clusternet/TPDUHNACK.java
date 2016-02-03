@@ -201,7 +201,7 @@ public class TPDUHNACK extends TPDUDatos
    // 17º y sucesivos BYTE : [IP,Puerto Unicast,Número Secuencia]
    Iterator iteradorID_TPDU = this.LISTA_ORD_ID_TPDU.iteradorID_TPDU();
    ID_TPDU id_TPDUNext  = null;
-   ID_Socket id_Socket  = null;
+   ClusterMemberID id_Socket  = null;
    SecuenceNumber nSec = null;
    while (iteradorID_TPDU.hasNext())
     {
@@ -271,7 +271,7 @@ public class TPDUHNACK extends TPDUDatos
   tpduHNACK.LISTA_ORD_ID_TPDU = new ListaOrdID_TPDU ();
 
   ID_TPDU id_TPDU      = null;
-  ID_Socket id_Socket  = null;
+  ClusterMemberID id_Socket  = null;
   IPv4           ipv4  = null;
   while (offset<buffer.getMaxLength())
    {
@@ -279,7 +279,7 @@ public class TPDUHNACK extends TPDUDatos
     ipv4 = new IPv4 (new Buffer (buffer.getBytes(offset,4)));
     offset += 4;
     // Unir la Dirección IP con el puerto unicast que se obtenga
-    id_Socket = new ID_Socket (ipv4,buffer.getShort (offset));
+    id_Socket = new ClusterMemberID (ipv4,buffer.getShort (offset));
     offset += 2;
 
     // Unir id_Socket con el número de secuencia que se obtenga

@@ -340,7 +340,7 @@ public class TPDUHACK extends TPDUDatos
    {
 
     try {
-      ID_Socket id_SocketFuente = new ID_Socket
+      ClusterMemberID id_SocketFuente = new ClusterMemberID
                               (this.DIR_IP_FUENTE,this.PUERTO_UNICAST_FUENTE);
       this.ID_TPDU_FUENTE = new ID_TPDU (id_SocketFuente,this.NUMERO_SECUENCIA_FUENTE);
      } catch (ClusterNetInvalidParameterException e) {}

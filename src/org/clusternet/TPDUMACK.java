@@ -111,7 +111,7 @@ public class TPDUMACK extends TPDUDatos
    *       <li>Puerto Unicast Fuente (2 byte)</li>
    *    </ul>
    */
-   private ID_Socket ID_SOCKET_FUENTE = null;
+   private ClusterMemberID ID_SOCKET_FUENTE = null;
 
   //==========================================================================
   /**
@@ -328,11 +328,11 @@ public class TPDUMACK extends TPDUDatos
    * Devuelve el {@link #ID_SOCKET_FUENTE id_socket fuente}.
    * @return id_socket fuente
    */
- ID_Socket getID_SocketFuente ()
+ ClusterMemberID getID_SocketFuente ()
  {
   if (this.ID_SOCKET_FUENTE == null)
    {
-    this.ID_SOCKET_FUENTE = new ID_Socket
+    this.ID_SOCKET_FUENTE = new ClusterMemberID
                              (this.DIR_IP_FUENTE,this.PUERTO_UNICAST_FUENTE);
    }
   return this.ID_SOCKET_FUENTE;

@@ -101,7 +101,7 @@ public class TPDUDatos extends TPDU
    * Almacena la información del socket ClusterNet que ha enviado este TPDU.
    * Se reserva a las subclases el asignar valor a este campo.
    */
-  protected ID_Socket id_SocketEmisor = null;
+  protected ClusterMemberID id_SocketEmisor = null;
 
 
   /**
@@ -136,7 +136,7 @@ public class TPDUDatos extends TPDU
    * facilitada en los argumentos.
    * @param puertoMulticast
    * @param puertoUnicast
-   * @param idgl
+   * @param clusterGroupID
    * @param dirIp dirección IP unicast del emisor del TPDUDatos
    * @exception ClusterNetExcepcion
    * @exception ClusterNetInvalidParameterException lanzada si algún parámetro tienen un
@@ -145,13 +145,13 @@ public class TPDUDatos extends TPDU
 
   protected TPDUDatos (int puertoMulticast,
                        int puertoUnicast,
-                       IDGL idgl,
+                       ClusterGroupID clusterGroupID,
                        IPv4 dirIp)
     throws ClusterNetExcepcion,ClusterNetInvalidParameterException
   {
-   super (puertoMulticast,puertoUnicast,idgl);
+   super (puertoMulticast,puertoUnicast,clusterGroupID);
 
-   this.id_SocketEmisor = new ID_Socket (dirIp,puertoUnicast);
+   this.id_SocketEmisor = new ClusterMemberID (dirIp,puertoUnicast);
   }
 
 
@@ -226,7 +226,7 @@ public class TPDUDatos extends TPDU
    * <ul>
    *   <li>Puerto Multicast</li>
    *   <li>Puerto Unicast</li>
-   *   <li>IDGL</li>
+   *   <li>ClusterGroupID</li>
    *   <li>Longiud</li>
    *   <li>Cheksum</li>
    *   <li>Versión</li>
@@ -255,7 +255,7 @@ public class TPDUDatos extends TPDU
      tpduDatos.SUBTIPO = TPDUDatos.getSubtipo (buf);
 
      // Asignar valor a id_SocketEmisor
-     tpduDatos.id_SocketEmisor = new ID_Socket (ipv4Emisor,tpduDatos.getPuertoUnicast());
+     tpduDatos.id_SocketEmisor = new ClusterMemberID (ipv4Emisor,tpduDatos.getPuertoUnicast());
 
   }
 
@@ -307,7 +307,7 @@ public class TPDUDatos extends TPDU
 
   */
 
- ID_Socket getID_SocketEmisor ()
+ ClusterMemberID getID_SocketEmisor ()
  {
   return this.id_SocketEmisor;
  }

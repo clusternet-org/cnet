@@ -75,7 +75,7 @@ import java.lang.Math;
   * M. Alejandro García Domínguez
   * <A HREF="mailto:alejandro.garcia.dominguez@gmail.com">(alejandro.garcia.dominguez@gmail.com)</A><p>
  */
-class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLListener
+class DataThread  extends Thread implements TimerHandler,ClusterMemberListener,ClusterGroupListener
 {
   /**
    * Gestiona los {@link TPDUNACK} y {@link TPDUHNACK} que se han enviado o se
@@ -147,11 +147,11 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    *	    <td>{@link ID_TPDU} fuente solicitado para retransmitir.</td>
    *  </tr>
    *  <tr>  <td><b>Value:</b></td>
-   *	    <td>TreeMap con los {@link ID_Socket} que han solicitado la retransmisión
+   *	    <td>TreeMap con los {@link ClusterMemberID} que han solicitado la retransmisión
    * unicast:
    *            <table border=1>
    *              <tr>  <td><b>Key:</b></td>
-   *	                <td>ID_Socket</td>
+   *	                <td>ClusterMemberID</td>
    *              </tr>
    *              <tr>  <td><b>Value:</b></td>
    *	                <td>NULL</td>
@@ -166,13 +166,13 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
 
 
   /**
-   * Almacena el {@link ID_Socket} fuente y el {@link SecuenceNumber número de secuencia}
+   * Almacena el {@link ClusterMemberID} fuente y el {@link SecuenceNumber número de secuencia}
    * de los {@link TPDUDatosNormal TPDU Datos Normal} o {@link TPDUDatosRtx Rtx}.
    * recibidos o enviados multicast (han pasado por la red y los han visto todos
    * los hosts pertenecientes al Grupo Local) durante la 2ª mitad de RTT. <br>
    * <table border=1>
    *  <tr>  <td><b>Key:</b></td>
-   *	    <td>{@link ID_Socket} de la fuente del TPDU.</td>
+   *	    <td>{@link ClusterMemberID} de la fuente del TPDU.</td>
    *  </tr>
    *  <tr>  <td><b>Value:</b></td>
    *	    <td>Número de secuencia mayor recibido o enviado multicast.</td>
@@ -182,7 +182,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   private TreeMap treeMapIDs_TPDU2MitadRTT = null;
 
   /** Identificación de este socket */
-  private ID_Socket id_SocketLocal = null;
+  private ClusterMemberID id_SocketLocal = null;
 
   /**
    * Referencia al socketPTMF que crea este hilo.
@@ -244,14 +244,14 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   private TreeMap treeMapID_SocketNoSincronizado = null;
 
   /**
-   * Almacena los idgl que se han añadido y de los que no se tiene constancia de
+   * Almacena los clusterGroupID que se han añadido y de los que no se tiene constancia de
    * que estén sincronizados con todos los emisores fuentes. Sólo es utlizado en el modo
    * fiabilidad retrasada.
-   * La clave es idgl y el valor un treeMap cuya clave es un emisor fuente (id_socket),
+   * La clave es clusterGroupID y el valor un treeMap cuya clave es un emisor fuente (id_socket),
    * y su valor un Boolean, que indica si para dicho emisor ya se ha RTX algún
-   * TPDU en el que figure el idgl que se añadio. Si el valor booleano es
-   * true indica que el idgl ya está sincronizado para dicho emisor. Si es false
-   * que ya se ha rtx algún tpdu de dicho emisor en el que figura el idgl en
+   * TPDU en el que figure el clusterGroupID que se añadio. Si el valor booleano es
+   * true indica que el clusterGroupID ya está sincronizado para dicho emisor. Si es false
+   * que ya se ha rtx algún tpdu de dicho emisor en el que figura el clusterGroupID en
    * su lista de no asentidos.
    */
   private TreeMap treeMapIDGLNoSincronizado = null;
@@ -365,7 +365,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    * <br>Sólo usado en el modo MODE_NO_RELIABLE_ORDERED.
    * <table border=1>
    *  <tr>  <td><b>Key:</b></td>
-   *	    <td>{@link ID_Socket} fuente.</td>
+   *	    <td>{@link ClusterMemberID} fuente.</td>
    *  </tr>
    *  <tr>  <td><b>Value:</b></td>
    *	    <td>Número de secuencia último entregado al usuario.</td>
@@ -476,9 +476,9 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
       */
   private static final int iEVENTO_FIN_SINCRONIZACION_ID_SOCKET = 8;
 
-  /** Evento de consumido el tiempo de espera para que un nuevo IDGL
+  /** Evento de consumido el tiempo de espera para que un nuevo ClusterGroupID
       esté sincronizado. (Sólo utilizada en modo fiable retrasado.)
-      Al registrar en el temporizador se registrará también el idgl
+      Al registrar en el temporizador se registrará también el clusterGroupID
       al cual se le ha acabado el tiempo para sincronización.
       */
   private static final int iEVENTO_FIN_SINCRONIZACION_IDGL = 9;
@@ -503,13 +503,13 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   private int iInactividadReceptor  = 0;
 
   /** Vector con los id_sockets e idgls añadidos.
-      CGL almacena los ID_Socket y los IDGL que se incorporan a la comunicación.
+      CGL almacena los ClusterMemberID y los ClusterGroupID que se incorporan a la comunicación.
       El thread CGLThread añade los identificadores y el thread DataThread los
       elimina. Al vector se puede acceder de forma concurrente.*/
   private Vector vectorIDAñadidos = null;
 
   /** Vector con los id_sockets e idgls eliminados
-      CGL almacena los ID_Socket y los IDGL que abandonan la comunicación
+      CGL almacena los ClusterMemberID y los ClusterGroupID que abandonan la comunicación
       El thread CGLThread añade los identificadores y el thread DataThread los
       elimina. Al vector se puede acceder de forma concurrente.*/
   private Vector vectorIDEliminados = null;
@@ -577,7 +577,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
        // Registrar función para llamar cada fin de RTT
        this.socketClusterNetImp.getTemporizador().registrarFuncionRTT (this,this.iEVENTO_RTT);
 
-       // Registrar IDGLListener y ID_SocketListener en CGLThread
+       // Registrar ClusterGroupListener y ClusterMemberListener en CGLThread
        this.socketClusterNetImp.getCGLThread().addID_SocketListener(this);
        this.socketClusterNetImp.getCGLThread().addIDGLListener (this);
       }
@@ -664,10 +664,10 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
            this.tablaID_SocketsEmisores.comprobarInactividad().keySet().iterator();
 
         // Eliminar todos los que hayan superado el tiempo máx. de inactividad.
-        ID_Socket id_socketNext;
+        ClusterMemberID id_socketNext;
         while (iteradorID_Socket.hasNext())
          {
-          id_socketNext = (ID_Socket)iteradorID_Socket.next();
+          id_socketNext = (ClusterMemberID)iteradorID_Socket.next();
           eliminarID_SocketFuente (id_socketNext,"Eliminado por inactividad.");
          } // Fin del while
 
@@ -691,10 +691,10 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
          {
           Iterator iteradorID_Socket =
                         this.treeMapID_SocketEntregarUsuario.keySet().iterator();
-          ID_Socket id_socketNext;
+          ClusterMemberID id_socketNext;
           while (iteradorID_Socket.hasNext())
            {
-            id_socketNext = (ID_Socket)iteradorID_Socket.next();
+            id_socketNext = (ClusterMemberID)iteradorID_Socket.next();
 
             // Entregar al usuario.
             if (this.tablaID_SocketsEmisores.entregaDatosUsuario (id_socketNext,
@@ -732,7 +732,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
       this.enviarTPDU ();
 
       //-------------------------------------------------------------------
-      // 7. Comprueba los id_socket e IDGL que han abandonado el grupo sin avisar.
+      // 7. Comprueba los id_socket e ClusterGroupID que han abandonado el grupo sin avisar.
       // Sólo si estamos en modo fiable.
       //-------------------------------------------------------------------
       this.comprobarlistaIDs_TPDUNoRecibidoAsentimiento ();
@@ -802,7 +802,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    */
   private void comprobarIDAñadidos ()
   {
-   // Comprueba los nuevos ID_Socket o idgls que se han añadido al grupo.
+   // Comprueba los nuevos ClusterMemberID o idgls que se han añadido al grupo.
    if (this.vectorIDAñadidos != null
        &&
        !this.vectorIDAñadidos.isEmpty ())
@@ -810,10 +810,10 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
         for (int i=0;i<this.vectorIDAñadidos.size();i++)
          {
           Object obj = this.vectorIDAñadidos.remove(0);
-          if (obj instanceof ID_Socket)
-               this.añadirID_Socket ((ID_Socket)obj);
-          if (obj instanceof IDGL)
-               this.añadirIDGL ((IDGL)obj);
+          if (obj instanceof ClusterMemberID)
+               this.añadirID_Socket ((ClusterMemberID)obj);
+          if (obj instanceof ClusterGroupID)
+               this.añadirIDGL ((ClusterGroupID)obj);
          }
       }
   }
@@ -824,7 +824,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    */
   private void comprobarIDEliminados ()
   {
-   // Comprueba los nuevos ID_Socket o idgls que se han añadido al grupo.
+   // Comprueba los nuevos ClusterMemberID o idgls que se han añadido al grupo.
    if (this.vectorIDEliminados != null
        &&
        !this.vectorIDEliminados.isEmpty ())
@@ -832,10 +832,10 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
         for (int i=0;i<this.vectorIDEliminados.size();i++)
          {
           Object obj = this.vectorIDEliminados.remove(0);
-          if (obj instanceof ID_Socket)
-               this.eliminarID_Socket ((ID_Socket)obj);
-          if (obj instanceof IDGL)
-               this.eliminarIDGL ((IDGL)obj);
+          if (obj instanceof ClusterMemberID)
+               this.eliminarID_Socket ((ClusterMemberID)obj);
+          if (obj instanceof ClusterGroupID)
+               this.eliminarIDGL ((ClusterGroupID)obj);
          }
       }
   }
@@ -848,7 +848,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    * @param msg mensaje a enviar al usuario, si es null no se envía ninguno.
    * Explica el motivo de la eliminación.
    */
-  private void eliminarID_SocketFuente (ID_Socket id_socketFuente,String msg)
+  private void eliminarID_SocketFuente (ClusterMemberID id_socketFuente,String msg)
   {
    final String mn = "DataThread.eliminarID_SocketFuente (id_socketFuente,msg)";
 
@@ -999,7 +999,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   {
    final String mn = "DataThread.procesarTPDUDatosNormalNoFiable ";
 
-   ID_Socket  id_SocketSrc = tpduDatosNormal.getID_SocketEmisor ();
+   ClusterMemberID  id_SocketSrc = tpduDatosNormal.getID_SocketEmisor ();
 
    if (id_SocketSrc==null)
      return;
@@ -1039,7 +1039,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   {
    final String mn = "DataThread.procesarTPDUDatosNormalFiable ";
 
-   ID_Socket  id_SocketSrc = tpduDatosNormal.getID_SocketEmisor ();
+   ClusterMemberID  id_SocketSrc = tpduDatosNormal.getID_SocketEmisor ();
    SecuenceNumber nSec    = tpduDatosNormal.getNumeroSecuencia ();
    int       iNumRafaga    = tpduDatosNormal.getNumeroRafaga    ();
    boolean bNuevoEmisor    = false;
@@ -1151,7 +1151,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    //=======================================================================
    // 3. Obtener el CG del emisor del TPDU
 
-   ID_Socket id_socketCGLocal = this.tablaCGLocales.getCGLocal (
+   ClusterMemberID id_socketCGLocal = this.tablaCGLocales.getCGLocal (
                                            tpduDatosNormal.getID_SocketEmisor(),
                                            tpduDatosNormal.getNumeroRafaga());
    // Ver si hay un CG asignado a este TPDU Datos. Si no lo hay empezar
@@ -1224,7 +1224,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    *          <li>Si tiene el bit ACK activado y pertenece a la ventana de
    *              recepción correspondiente, anotar para enviar asentimiento
    *              positivo.</li>
-   *          <li>Si figuramos en su lista de IDGL que no han enviado asentimiento,
+   *          <li>Si figuramos en su lista de ClusterGroupID que no han enviado asentimiento,
    *               anotar para enviar un HSACK, y si además es su CG y pertenece
    *               a la ventana de recepción correspondiente, anotar para enviar
    *               asentimiento positivo.</li>
@@ -1431,7 +1431,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
                                  ( tpduDatosRtx.getID_TPDUFuente().getID_Socket(),
                                    tpduDatosRtx.getNumeroRafagaFuente());
 
-        ID_Socket id_socketCGLocal = actualizarTablaCGLocales (
+        ClusterMemberID id_socketCGLocal = actualizarTablaCGLocales (
            /*id_socket Fuente */tpduDatosRtx.getID_TPDUFuente().getID_Socket(),
            /*N. Ráfaga        */tpduDatosRtx.getNumeroRafagaFuente(),
            /*nSecInicRáfaga   */(nSecInicRafaga!=null?nSecInicRafaga:
@@ -1467,7 +1467,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
 
     if (bRtxPorPadreJerarquico)
      { // Comprobar si tiene un grupo local asignado.
-       ID_Socket id_socketCGLocal = this.tablaCGLocales.getCGLocal (
+       ClusterMemberID id_socketCGLocal = this.tablaCGLocales.getCGLocal (
                                 tpduDatosRtx.getID_TPDUFuente().getID_Socket(),
                                 tpduDatosRtx.getNumeroRafagaFuente());
 
@@ -1556,7 +1556,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   final String mn = "DataThread.procesarTPDUACK";
 
   // Comprobar que somos el CG Local de dicha ráfaga.
-  ID_Socket id_socketCGLocal = this.tablaCGLocales.getCGLocal (tpduACK.getID_TPDUFuente().getID_Socket(),
+  ClusterMemberID id_socketCGLocal = this.tablaCGLocales.getCGLocal (tpduACK.getID_TPDUFuente().getID_Socket(),
                                                                tpduACK.getNumeroRafagaFuente());
 
   if (id_socketCGLocal==null)
@@ -1667,7 +1667,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    ListaOrdID_TPDU listaNACK = tpduNACK.getListaID_TPDU ();
    Iterator iterador = listaNACK.iteradorID_TPDU();
    ID_TPDU id_tpduNext;
-   ID_Socket id_SocketSrc;
+   ClusterMemberID id_SocketSrc;
    SecuenceNumber nSec;
    while (iterador.hasNext())
     {
@@ -1693,7 +1693,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
       if (vtaRecep.recibido(nSec)) // 2º if
           {
            iterador.remove();
-           ID_Socket id_socketCGLocal = this.tablaCGLocales.getCGLocal (id_tpduNext);
+           ClusterMemberID id_socketCGLocal = this.tablaCGLocales.getCGLocal (id_tpduNext);
            if (id_socketCGLocal!=null
                 &&
                id_socketCGLocal.equals (this.id_SocketLocal))
@@ -1747,7 +1747,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    // Ver los cambios que se hagan en el envío de los HNACK en gestionAsentNeg
    // y tratar según lo indicado.
 
-   IDGL idglEmisor = tpduHNACK.getIDGL();
+   ClusterGroupID idglEmisor = tpduHNACK.getIDGL();
    // Comprobar si es de este grupo local.
    boolean bCondicion = idglEmisor.equals (this.socketClusterNetImp.getCGLThread().getIDGL());
 
@@ -1761,7 +1761,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
 
    Iterator iterador = listaHNACK.iteradorID_TPDU();
    ID_TPDU id_tpduNext = null;
-   ID_Socket id_SocketSrc = null;
+   ClusterMemberID id_SocketSrc = null;
    SecuenceNumber nSec = null;
    while (iterador.hasNext())
     {
@@ -1783,8 +1783,8 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
      // RECIBIDO POR MULTICAST
      // Comprobar si es hijo jerárquico para dicho id_tpdu o si ha sido enviado
      // por un miembro de mi grupo local, en cuyo caso también lo acepto
-     // Obtener el IDGL de la fuente del id_tpdu que me están asentiendo.
-     IDGL idglFuente = this.getIDGL (id_tpduNext.getID_Socket());
+     // Obtener el ClusterGroupID de la fuente del id_tpdu que me están asentiendo.
+     ClusterGroupID idglFuente = this.getIDGL (id_tpduNext.getID_Socket());
      TreeMap treeMapIDGLHijos = this.socketClusterNetImp.getCGLThread().getCGHijos(idglFuente);
      bCondicion = (treeMapIDGLHijos==null?this.socketClusterNetImp.getIDGL().equals(idglEmisor):
                                     treeMapIDGLHijos.containsKey (idglEmisor)
@@ -1810,7 +1810,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
      {
       if (vtaRecep.recibido(nSec)) // 2º if
           {
-           ID_Socket id_socketCGLocal = this.tablaCGLocales.getCGLocal (id_tpduNext);
+           ClusterMemberID id_socketCGLocal = this.tablaCGLocales.getCGLocal (id_tpduNext);
            if (id_socketCGLocal!=null
                 &&
                id_socketCGLocal.equals (this.id_SocketLocal))
@@ -1864,7 +1864,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
     Log.debug(Log.HSACK,mn,"<-- Recibido un HSACK: " + tpduHSACK.getID_TPDUFuente());
 
    // Comprobar que somos el CG Local de dicha ráfaga.
-   ID_Socket id_socketCGLocal = this.tablaCGLocales.getCGLocal (tpduHSACK.getID_TPDUFuente().getID_Socket(),
+   ClusterMemberID id_socketCGLocal = this.tablaCGLocales.getCGLocal (tpduHSACK.getID_TPDUFuente().getID_Socket(),
                                                                tpduHSACK.getNumeroRafagaFuente());
 
    if ( id_socketCGLocal==null || !id_socketCGLocal.equals (this.id_SocketLocal) )
@@ -1918,8 +1918,8 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
 
    //Log.log (mn,"RECIBIDO HSACK : " + tpduHSACK.getID_TPDUFuente());
 
-   // Actualizar la lista de IDGL no sincronizados
-   // El IDGL que ha enviado el HSACK está sincronizado para dicho emisor
+   // Actualizar la lista de ClusterGroupID no sincronizados
+   // El ClusterGroupID que ha enviado el HSACK está sincronizado para dicho emisor
    if (this.iMODO_FIABILIDAD == ClusterNet.MODE_DELAYED_RELIABLE)
     {
      TreeMap treeMapEmisores = (TreeMap)
@@ -1944,7 +1944,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
     Log.debug(Log.HACK,mn,"<-- Recibido un HACK de "+tpduHACK.getID_SocketEmisor()+ " asiente "+tpduHACK.getID_TPDUFuente());
 
     // Comprobar que somos el CG Local de dicha ráfaga.
-    ID_Socket id_socketCGLocal = this.tablaCGLocales.getCGLocal (tpduHACK.getID_TPDUFuente().getID_Socket(),
+    ClusterMemberID id_socketCGLocal = this.tablaCGLocales.getCGLocal (tpduHACK.getID_TPDUFuente().getID_Socket(),
                                                                tpduHACK.getNumeroRafagaFuente());
 
     if (id_socketCGLocal==null || !id_socketCGLocal.equals (this.id_SocketLocal) )
@@ -1997,8 +1997,8 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
     // Limpiar la ventana
     this.limpiarVentana (tpduHACK.getID_TPDUFuente(),false);
 
-    // Actualizar la lista de IDGL no sincronizados
-    // El IDGL que ha enviado el HACK está sincronizado para dicho emisor
+    // Actualizar la lista de ClusterGroupID no sincronizados
+    // El ClusterGroupID que ha enviado el HACK está sincronizado para dicho emisor
     if (this.iMODO_FIABILIDAD == ClusterNet.MODE_DELAYED_RELIABLE)
      {
       TreeMap treeMapEmisores = (TreeMap)
@@ -2711,7 +2711,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
          &&
         (nSecMayor2MitadRTT.compareTo(id_tpduNext.getNumeroSecuencia())>=0))
           { // Rtx. sólo si incluye en sus listas de no asentidos a un socket
-            // o idgl nuevo (no sincronizado).
+            // o clusterGroupID nuevo (no sincronizado).
             // Log.debug (Log.TPDU_RTX,mn,"llamar a rtx tpdu si no sincronizado");
             this.rtxTPDU (id_tpduNext,iRTX_SI_NO_SINCRONIZADO);
             continue;
@@ -2778,7 +2778,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    if (id_tpdu==null)
      return null;
 
-   ID_Socket id_socket = id_tpdu.getID_Socket();
+   ClusterMemberID id_socket = id_tpdu.getID_Socket();
    SecuenceNumber nSec = id_tpdu.getNumeroSecuencia();
    Window  window = null;
 
@@ -2838,11 +2838,11 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
       */
       try{
         Iterator iteradorID_SocketSolRtx = treeMapID_SocketSolRtx.keySet().iterator();
-        ID_Socket id_socketNext;
+        ClusterMemberID id_socketNext;
         Address dirUnicastDestino;
         while (iteradorID_SocketSolRtx.hasNext())
          {
-          id_socketNext = (ID_Socket)iteradorID_SocketSolRtx.next();
+          id_socketNext = (ClusterMemberID)iteradorID_SocketSolRtx.next();
           dirUnicastDestino = new Address (id_socketNext);
           // Destino: La dirección Unicast Destino
           this.socketClusterNetImp.getCanalUnicast().send (tpduDatosNormal.construirTPDUDatosNormal(),
@@ -2908,7 +2908,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
     {
      ID_TPDU id_tpdu = null;
      int iNumeroRafaga;
-     ID_Socket id_SocketCGLocal = null;
+     ClusterMemberID id_SocketCGLocal = null;
 
      Iterator iteradorID_TPDU = this.listaAsentPositPendientesDeEnviar.iteradorID_TPDU();
      while (iteradorID_TPDU.hasNext ())
@@ -3090,7 +3090,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    * @param numSecInicialRafaga número de secuencia inicial de la ráfaga.
    * @return true si ha podido formar el TPDUMACK y enviarlo.
    */
-  private boolean enviarTPDUMACK (ID_Socket id_SocketSrc,int iNumeroRafagaParam,
+  private boolean enviarTPDUMACK (ClusterMemberID id_SocketSrc,int iNumeroRafagaParam,
                                   SecuenceNumber numSecInicialRafaga)
   {
    final String mn = "DataThread.enviarTPDUMACK (id_SocketSrc,numRaf,nSecIniRaf)";
@@ -3103,7 +3103,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
                                                 id_SocketSrc.getPuertoUnicast(),
                                                 numSecInicialRafaga);
     // Enviarlo.
-    /* Destino: Todos los vecinos (mismo IDGL) pertenecientes al GRUPO LOCAL.
+    /* Destino: Todos los vecinos (mismo ClusterGroupID) pertenecientes al GRUPO LOCAL.
                 Si el número de vecinos es cero, no se envía a la red.
     */
     Buffer bufAEnviar = tpduMACK.construirTPDUMACK();
@@ -3147,7 +3147,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    // Obtener la lista de los que no hemos enviado HSACK:
    // Comprobar si este host los ha recibido todos,
    Iterator iteradorRegistrosHSACK = this.listaHSACKPendientesDeEnviar.iteradorObjetos ();
-   ID_Socket id_socketCGLocal = null;
+   ClusterMemberID id_socketCGLocal = null;
    boolean bCondicion;
 
 
@@ -3222,8 +3222,8 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
        iteradorRegistrosHSACK.remove();
        try{
         // Coger de la lista de padres y mandar el HSACK
-        // Obtenemos los padres para el IDGL dado.
-        IDGL idglFuente = this.getIDGL (reg.id_tpdu.getID_Socket());
+        // Obtenemos los padres para el ClusterGroupID dado.
+        ClusterGroupID idglFuente = this.getIDGL (reg.id_tpdu.getID_Socket());
 
         if (idglFuente==null)
             continue;
@@ -3286,11 +3286,11 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    * Forma con los parámetros un TPDUHACK y lo envía.
    * @param id_tpduFuente ID_TPDU que se está asintiendo.
    * @param iNumeroRafagaFuente número de ráfaga a la que pertenece id_tpduFuente.
-   * @param idglFuente IDGL al que pertenece el socket fuente de id_tpduFuente.
+   * @param idglFuente ClusterGroupID al que pertenece el socket fuente de id_tpduFuente.
    * @return true si ha enviado alguno.
    */
   private boolean enviarTPDUHACK (ID_TPDU id_tpduFuente,int iNumeroRafagaFuente,
-                                  IDGL idglFuente)
+                                  ClusterGroupID idglFuente)
   {
    final String mn = "DataThread.enviarTPDUHACK";
 
@@ -3316,7 +3316,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
                          id_tpduFuente.getNumeroSecuencia()).clear ();
 
      // Coger de la lista de padres y mandar el HACK
-     // Obtenemos los padres para el IDGL dado.
+     // Obtenemos los padres para el ClusterGroupID dado.
      // Obtenemos el TTL máximo de entre todos los padres jerárquicos.
      TreeMap treemapPadres = this.socketClusterNetImp.getCGLThread().getCGPadres(idglFuente);
      if( treemapPadres != null)
@@ -3439,22 +3439,22 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
          this.tablaAsentimientos.convertirHSACKaHACK (id_tpdu);
          this.limpiarVentana (id_tpdu,true);
 
-         ID_Socket id_socket = null;
+         ClusterMemberID id_socket = null;
          // Eliminar los sockets de los que no he recibido asentimiento.
          while (iteradorID_Socket.hasNext())
           {
-           id_socket = (ID_Socket)iteradorID_Socket.next();
+           id_socket = (ClusterMemberID)iteradorID_Socket.next();
            Log.debug(Log.DATOS_THREAD,mn,"Eliminar ID_SOCKET: " + id_socket+" Motivo: no he recibido ACK para el ID_TPDU "+id_tpdu+" en el número máximo de intentos (RTT*"+ClusterNet.OPORTUNIDADES_RTT+")");
            this.socketClusterNetImp.getCGLThread().removeID_SOCKET(id_socket);
            } // Fin del while
 
-         IDGL idgl = null;
+         ClusterGroupID clusterGroupID = null;
          while (iteradorIDGL.hasNext())
             {
-             idgl = (IDGL)iteradorIDGL.next();
-             //Log.log (mn,"2.2- VOY A LLAMAR A REMOVE IDGL: " + idgl);
-             Log.debug(Log.DATOS_THREAD,mn,"Eliminar IDDL: " + idgl+" Motivo: no he recibido HACK para el ID_TPDU "+id_tpdu+" en el número máximo de intentos (RTT*"+ClusterNet.OPORTUNIDADES_RTT+")");
-             this.socketClusterNetImp.getCGLThread().removeIDGL (idgl);
+             clusterGroupID = (ClusterGroupID)iteradorIDGL.next();
+             //Log.log (mn,"2.2- VOY A LLAMAR A REMOVE ClusterGroupID: " + clusterGroupID);
+             Log.debug(Log.DATOS_THREAD,mn,"Eliminar IDDL: " + clusterGroupID+" Motivo: no he recibido HACK para el ID_TPDU "+id_tpdu+" en el número máximo de intentos (RTT*"+ClusterNet.OPORTUNIDADES_RTT+")");
+             this.socketClusterNetImp.getCGLThread().removeIDGL (clusterGroupID);
             } // Fin del while
         } // Fin del if
     } // Fin del while
@@ -3462,7 +3462,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
     this.mutex.unlock();
     // Eliminar los sockets que no han enviado los id_tpdu solicitados.
     // Nunca será uno de la ventana de emisión.
-    // NOTA: LA CULPA HA PODIDO SER DEL IDGL PADRE QUE SE HA CAIDO, PERO NO,
+    // NOTA: LA CULPA HA PODIDO SER DEL ClusterGroupID PADRE QUE SE HA CAIDO, PERO NO,
     // PORQUE EN ÚLTIMA INSTANCIA SON PEDIDOS POR UNICAST A LA FUENTE.
     ListaOrdID_TPDU listaID_TPDU = gestionAsentNeg.removeIDs_TPDUAgotados();
     if (listaID_TPDU==null)
@@ -3539,19 +3539,19 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
             this.lT_Out_Ajustar_Ratio_Usuario = 0;
             break;
          case iEVENTO_FIN_SINCRONIZACION_ID_SOCKET:
-            if (o instanceof ID_Socket)
+            if (o instanceof ClusterMemberID)
               {
-               ID_Socket id_socket = (ID_Socket)o;
+               ClusterMemberID id_socket = (ClusterMemberID)o;
                if (this.treeMapID_SocketNoSincronizado != null)
                    this.treeMapID_SocketNoSincronizado.remove (id_socket);
               }
             break;
          case iEVENTO_FIN_SINCRONIZACION_IDGL:
-            if (o instanceof IDGL)
+            if (o instanceof ClusterGroupID)
               {
-               IDGL idgl = (IDGL)o;
+               ClusterGroupID clusterGroupID = (ClusterGroupID)o;
                if (this.treeMapIDGLNoSincronizado != null)
-                     this.treeMapIDGLNoSincronizado.remove (idgl);
+                     this.treeMapIDGLNoSincronizado.remove (clusterGroupID);
               }
             break;
          default:  // No puede ocurrir.
@@ -3634,9 +3634,9 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    * indicada.
    * @id_socket id_socket a eliminar de los MACK registrados.
    */
-  private void removeMACK (ID_Socket id_socket)
+  private void removeMACK (ClusterMemberID id_socket)
   {
-   final String mn = "DataThread.removeMACK (ID_Socket)";
+   final String mn = "DataThread.removeMACK (ClusterMemberID)";
 
    if (id_socket==null)
      return;
@@ -3692,7 +3692,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    * Comprueba si hay un MACK pendiente de enviar para id_socket,ráfaga
    * @return true si lo hay.
    */
-  private boolean hayMACKPendientesDeEnviar (ID_Socket id_Socket,int iNumeroRafagaParam)
+  private boolean hayMACKPendientesDeEnviar (ClusterMemberID id_Socket,int iNumeroRafagaParam)
   {
    if (id_Socket==null)
       return false;
@@ -3728,7 +3728,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
     final String mn = "DataThread.comprobarID_TPDUNoRecibidos (id_tpdu)";
     SecuenceNumber nSecFinal = null;
 
-    ID_Socket       id_Socket = id_TPDU.getID_Socket ();
+    ClusterMemberID       id_Socket = id_TPDU.getID_Socket ();
     SecuenceNumber numSec    = id_TPDU.getNumeroSecuencia ();
 
     RxWindow vtaRecp = this.tablaID_SocketsEmisores.getVentanaRecepcion(id_Socket);
@@ -3906,7 +3906,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    // Son ACUMULATIVOS para la misma ráfaga.
 
    // Buscar si ya había alguno en la lista para la misma ráfaga que este.
-   ID_Socket id_socket  = id_tpduFuente.getID_Socket();
+   ClusterMemberID id_socket  = id_tpduFuente.getID_Socket();
    SecuenceNumber nSec = id_tpduFuente.getNumeroSecuencia();
 
    // Iterador con los id_tpdu que contienen a id_socket y el número de ráfaga.
@@ -3950,7 +3950,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    * @param id_tpdu id_tpdu que se tiene que semi-asentir (HSACK)
    * @param iNumeroRafaga número de la ráfaga a la que pertenece id_tpdu.
    * @param bPedidoRtx si true indica que se recibió un TPDU de datos rtx. por
-   * un padre jerárquico en el que figuramos en su lista de IDGL pendientes de
+   * un padre jerárquico en el que figuramos en su lista de ClusterGroupID pendientes de
    * asentir.
    */
   private void actualizarHSACKPendientesDeEnviar (ID_TPDU id_tpdu,int iNumeroRafaga,
@@ -3965,7 +3965,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    // Son ACUMULATIVOS para la misma ráfaga.
 
    // Buscar si ya había alguno en la lista para el mismo emisor fuente que este.
-   ID_Socket id_socket  = id_tpdu.getID_Socket();
+   ClusterMemberID id_socket  = id_tpdu.getID_Socket();
    SecuenceNumber nSec = id_tpdu.getNumeroSecuencia();
 
    // Iterador con los id_tpdu que contienen a id_socket y el número de ráfaga.
@@ -4044,15 +4044,15 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    * @param id_socketCGLocal id_socket CG local para la ráfaga.
    * @return id_socket CG de la ráfaga.
    */
-  private ID_Socket actualizarTablaCGLocales (ID_Socket id_socketFuente,int iNumeroRafaga,
-                      SecuenceNumber nSecInicRafaga,ID_Socket id_socketCGLocal)
+  private ClusterMemberID actualizarTablaCGLocales (ClusterMemberID id_socketFuente,int iNumeroRafaga,
+                      SecuenceNumber nSecInicRafaga,ClusterMemberID id_socketCGLocal)
   {
-   ID_Socket id_socketResult = null;
+   ClusterMemberID id_socketResult = null;
 
    if ((id_socketFuente==null) || (id_socketCGLocal==null) || (nSecInicRafaga==null))
         return id_socketResult;
 
-   ID_Socket id_socketCGLocalAnterior = this.tablaCGLocales.getCGLocal (
+   ClusterMemberID id_socketCGLocalAnterior = this.tablaCGLocales.getCGLocal (
                                                                id_socketFuente,
                                                                iNumeroRafaga);
    if (id_socketCGLocalAnterior==null)
@@ -4198,7 +4198,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   private boolean limpiarVentana (ID_TPDU id_tpduParam,boolean bFinOportunidades)
    {
     Window window = null;
-    ID_Socket id_socketCGLocal = null;
+    ClusterMemberID id_socketCGLocal = null;
     int iNumRafaga;
     String mn = "DataThread.limpiarVentana";
 
@@ -4429,7 +4429,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
  * @param id_socket id_socket cuya ventana se va a intentar vaciar, parcial
  * o totalmente.
  */
- private void limpiarVentana (ID_Socket id_socket)
+ private void limpiarVentana (ClusterMemberID id_socket)
  {
   final String mn = "DataThread.limpiarVentana (id_socket)";
 
@@ -4475,7 +4475,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
  * con el bit ACK activado contenido en la ventana asociada a id_socket.
  * @param id_socket id_socket fuente.
  */
- private void limpiarVentanaHastaPrimerTPDUConACK (ID_Socket id_socket)
+ private void limpiarVentanaHastaPrimerTPDUConACK (ClusterMemberID id_socket)
  {
   final String mn = "DataThread.limpiarVentanaHastaPrimerTPDUConACK (id_socket)";
 
@@ -4512,7 +4512,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
  * @param bSetFinTransmision true si el TPDU donde venían los datos tenía el bit
  * Fin Transmisión activado.
  */
- private void entregaDatosUsuarioNoFiable (ID_Socket id_socket,SecuenceNumber nSec,
+ private void entregaDatosUsuarioNoFiable (ClusterMemberID id_socket,SecuenceNumber nSec,
                                   Buffer bufferDatos,boolean bSetFinTransmision)
  {
   final String mn = "entregaDatosUsuarioNoFiable (id_socket)";
@@ -4578,7 +4578,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   * @see #listaID_TPDUSolicitadosRtxMulticast
   */
   private void actualizarListaID_TPDUSolicitadoRtx (ID_TPDU id_tpdu,
-                                          ID_Socket id_socket,int iTipoSolicitud)
+                                          ClusterMemberID id_socket,int iTipoSolicitud)
   {
    if (id_tpdu==null || id_socket==null)
         return;
@@ -4661,7 +4661,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   * </ul>
   * @return true si enviado un TPDU retransmitido.
   * si rtxSiContieneNoSincronizado es true indica que sólo se rtx. si en sus
-  * listas de no asentidos figura un socket o idgl que aún no esté sincronizado
+  * listas de no asentidos figura un socket o clusterGroupID que aún no esté sincronizado
   * para dicho emisor.
   * Si rtxSolohijosjerarqu es true entonces no se añaden los id_sockets que no
   * hayan enviado asentimiento.
@@ -4736,10 +4736,10 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
                         this.treeMapID_SocketNoSincronizado.keySet().iterator();
 
         TreeMap treeMapValue;
-        ID_Socket id_socketNuevoNext;
+        ClusterMemberID id_socketNuevoNext;
         while (iteradorID_SocketsNuevos.hasNext())
          {
-          id_socketNuevoNext = (ID_Socket)iteradorID_SocketsNuevos.next();
+          id_socketNuevoNext = (ClusterMemberID)iteradorID_SocketsNuevos.next();
 
           // Comprobar si este socket está entre los que se van a mandar en la
           // lista de no asentidos del tpdu rtx
@@ -4773,10 +4773,10 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
                         this.treeMapIDGLNoSincronizado.keySet().iterator();
 
         TreeMap treeMapValue;
-        IDGL idglNuevoNext;
+        ClusterGroupID idglNuevoNext;
         while (iteradorIDGLNuevos.hasNext())
          {
-          idglNuevoNext = (IDGL)iteradorIDGLNuevos.next();
+          idglNuevoNext = (ClusterGroupID)iteradorIDGLNuevos.next();
 
           // Comprobar si este socket está entre los que se van a mandar en la
           // lista de no asentidos del tpdu rtx
@@ -4897,18 +4897,18 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
 
  //============================================================================
  /**
-  * Notifica que IDGL ha sido añadido. Si el modo es fiable retrasado anota el
-  * idgl como no sincronizado para todos los emisores fuentes, y apunta como
+  * Notifica que ClusterGroupID ha sido añadido. Si el modo es fiable retrasado anota el
+  * clusterGroupID como no sincronizado para todos los emisores fuentes, y apunta como
   * recibido HSACK para todos los id_tpdus por los que se está esperando
   * asentimiento.
   * Ejecutada por el thread DataThread.
-  * @param idgl idgl añadido
+  * @param clusterGroupID clusterGroupID añadido
   * @see #treeMapIDGLNoSincronizado
   * @see #treeMapID_SocketNoSincronizado
   */
-  private void añadirIDGL(IDGL idgl)
+  private void añadirIDGL(ClusterGroupID clusterGroupID)
   {
-   if (idgl==null)
+   if (clusterGroupID==null)
         return;
 
    /*
@@ -4917,30 +4917,30 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
    */
    if (iMODO_FIABILIDAD == ClusterNet.MODE_DELAYED_RELIABLE)
     {
-       if (!this.treeMapIDGLNoSincronizado.containsKey (idgl))
+       if (!this.treeMapIDGLNoSincronizado.containsKey (clusterGroupID))
          {
-           this.treeMapIDGLNoSincronizado.put(idgl, new TreeMap());
+           this.treeMapIDGLNoSincronizado.put(clusterGroupID, new TreeMap());
            this.socketClusterNetImp.getTemporizador().registrarFuncion (ClusterNet.TIEMPO_MAXIMO_SINCRONIZACION,
                                           this,
                                           this.iEVENTO_FIN_SINCRONIZACION_IDGL,
-                                          idgl);
+                                          clusterGroupID);
          }
-        tablaAsentimientos.addHSACKAID_TPDUEnEspera (idgl);
+        tablaAsentimientos.addHSACKAID_TPDUEnEspera (clusterGroupID);
      } // Fin del if
    }
 
 
  //============================================================================
  /**
-  * Notifica que IDGL ha sido eliminado
+  * Notifica que ClusterGroupID ha sido eliminado
   * Ejecutada por el thread DataThread.
-  * @param idgl idgl eliminado
+  * @param clusterGroupID clusterGroupID eliminado
   */
-  private void eliminarIDGL(IDGL idgl)
+  private void eliminarIDGL(ClusterGroupID clusterGroupID)
   {
    // Código ejecutado por CGLThread
 
-   this.tablaAsentimientos.removeIDGL (idgl);
+   this.tablaAsentimientos.removeIDGL (clusterGroupID);
 
    // De la lista de rtx. solicitadas no es necesario, se
    // comprueba cuando va a ser enviado.
@@ -4957,7 +4957,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
     } // Fin del while
 
    if (this.iMODO_FIABILIDAD == ClusterNet.MODE_DELAYED_RELIABLE)
-     this.treeMapIDGLNoSincronizado.remove (idgl);
+     this.treeMapIDGLNoSincronizado.remove (clusterGroupID);
 
   }
 
@@ -4972,7 +4972,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   * @see #treeMapID_SocketNoSincronizado
   * @see #treeMapIDGLNoSincronizado
   */
-  private void añadirID_Socket(ID_Socket id_socket)
+  private void añadirID_Socket(ClusterMemberID id_socket)
   {
    if (id_socket == null)
       return;
@@ -5001,7 +5001,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   * Ejecutada por el thread DataThread.
   * @param id_Socket id_socket que ha sido eliminado de la comunicación.
   */
-  private void eliminarID_Socket(ID_Socket id_socket)
+  private void eliminarID_Socket(ClusterMemberID id_socket)
   {
    // Código ejecutado por CGLThread
 
@@ -5014,7 +5014,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
        return;
       }
 
-   this.socketClusterNetImp.sendPTMFEventError ("ID_Socket eliminado " + id_socket);
+   this.socketClusterNetImp.sendPTMFEventError ("ClusterMemberID eliminado " + id_socket);
 
    // Eliminar de los NACK:
    gestionAsentNeg.removeID_Socket (id_socket);
@@ -5066,11 +5066,11 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
 
  //============================================================================
  /**
-  * Notifica que ID_Socket ha sido añadido.
+  * Notifica que ClusterMemberID ha sido añadido.
   * Ejecutada por el thread CGLThread.
   * @param id_socket id_socket añadido
   */
-  public void ID_SocketAñadido(ID_Socket id_socket)
+  public void ID_SocketAñadido(ClusterMemberID id_socket)
   {
    if (this.vectorIDAñadidos==null)
     return;
@@ -5084,7 +5084,7 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
   * Ejecutada por el thread CGLThread.
   * @param id_socket id_socket eliminado.
   */
-  public void ID_SocketEliminado(ID_Socket id_socket)
+  public void ID_SocketEliminado(ClusterMemberID id_socket)
   {
    if (this.vectorIDEliminados==null)
     return;
@@ -5094,30 +5094,30 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
 
  //============================================================================
  /**
-  * Notifica que IDGL ha sido añadido
+  * Notifica que ClusterGroupID ha sido añadido
   * Ejecutada por el thread CGLThread.
-  * @param idgl idgl añadido
+  * @param clusterGroupID clusterGroupID añadido
   */
-  public void IDGLAñadido(IDGL idgl)
+  public void IDGLAñadido(ClusterGroupID clusterGroupID)
   {
    if (this.vectorIDAñadidos==null)
     return;
 
-   this.vectorIDAñadidos.add (idgl);
+   this.vectorIDAñadidos.add (clusterGroupID);
   }
 
  //============================================================================
  /**
-  * Notifica que IDGL ha sido eliminado
+  * Notifica que ClusterGroupID ha sido eliminado
   * Ejecutada por el thread CGLThread.
-  * @param idgl idgl eliminado
+  * @param clusterGroupID clusterGroupID eliminado
   */
-  public void IDGLEliminado(IDGL idgl)
+  public void IDGLEliminado(ClusterGroupID clusterGroupID)
   {
    if (this.vectorIDEliminados==null)
     return;
 
-   this.vectorIDEliminados.add (idgl);
+   this.vectorIDEliminados.add (clusterGroupID);
   }
 
 
@@ -5125,9 +5125,9 @@ class DataThread  extends Thread implements TimerHandler,ID_SocketListener,IDGLL
 
  //============================================================================
  /**
-  * Devuelve el IDGL al que pertenece  id_socket
+  * Devuelve el ClusterGroupID al que pertenece  id_socket
   */
-  IDGL getIDGL (ID_Socket id_socket)
+  ClusterGroupID getIDGL (ClusterMemberID id_socket)
   {
    if (id_socket==null)
         return null;
@@ -5173,7 +5173,7 @@ class RegistroHSACK
   int     iNRafaga  = 0;
 
   /** Si es true indica que se ha recibido un TPDU Datos Rtx. en el que figura
-      el IDGL de este socket en la lista de los que no han enviado asentimiento.  */
+      el ClusterGroupID de este socket en la lista de los que no han enviado asentimiento.  */
   boolean bPedidoRtx = false;
 } // Fin de la clase RegistroHSACK
 
@@ -5193,7 +5193,7 @@ class RegistroHSACK
 class RegistroVectorMACK
 
 {
-  /** ID_Socket fuente y número de secuencia inicial del MACK */
+  /** ClusterMemberID fuente y número de secuencia inicial del MACK */
   ID_TPDU id_tpdu  = null;
   /** Número de ráfaga del MACK. */
   int     iNRafaga = 0;

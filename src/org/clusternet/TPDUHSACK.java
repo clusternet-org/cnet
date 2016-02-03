@@ -364,7 +364,7 @@ public class TPDUHSACK extends TPDUDatos
 
     try {
 
-      ID_Socket id_SocketFuente = new ID_Socket
+      ClusterMemberID id_SocketFuente = new ClusterMemberID
 
                               (this.DIR_IP_FUENTE,this.PUERTO_UNICAST_FUENTE);
 

@@ -41,8 +41,8 @@ import java.util.NoSuchElementException;
 
 /**
  * ClusterNetInputStream es un "GESTOR" de flujos de entrada
- * ID_SocketInputStream para el ClusterNet. <br>
- * Existe un objeto ID_SocketInputStream por cada emisor.
+ * ClusterMemberInputStream para el ClusterNet. <br>
+ * Existe un objeto ClusterMemberInputStream por cada emisor.
  * @version  1.0
  * @author M. Alejandro García Domínguez
  * <A HREF="mailto:alejandro.garcia.dominguez@gmail.com">(alejandro.garcia.dominguez@gmail.com)</A><p>
@@ -136,7 +136,7 @@ public class ClusterNetInputStream implements Enumeration
   //==========================================================================
   /**
    * Devuelve lo mismo que hasMoreID_SocketInputStream()
-   * @return true si hay más ID_SocketInputStream con datos para leer y false en caso contrario.
+   * @return true si hay más ClusterMemberInputStream con datos para leer y false en caso contrario.
    */
   public boolean hasMoreElements()
   {
@@ -145,8 +145,8 @@ public class ClusterNetInputStream implements Enumeration
 
   //==========================================================================
   /**
-   * Comprueba si hay más ID_SocketInputStream con datos para leer.
-   * @return true si hay más ID_SocketInputStream con datos para leer y false en caso contrario.
+   * Comprueba si hay más ClusterMemberInputStream con datos para leer.
+   * @return true si hay más ClusterMemberInputStream con datos para leer y false en caso contrario.
    */
   public boolean hasMoreID_SocketInputStream()
   {
@@ -163,7 +163,7 @@ public class ClusterNetInputStream implements Enumeration
   //==========================================================================
   /**
    * Devuelve lo mismo que nextID_SocketInputStream().
-   * @return Un objeto ID_SocketInputStream que contiene datos que leer.
+   * @return Un objeto ClusterMemberInputStream que contiene datos que leer.
    */
   public Object nextElement() throws NoSuchElementException
   {
@@ -173,12 +173,12 @@ public class ClusterNetInputStream implements Enumeration
 
   //==========================================================================
   /**
-   * Devuelve el siguiente flujo de entrada ID_SocketInputStream listo para leer
+   * Devuelve el siguiente flujo de entrada ClusterMemberInputStream listo para leer
    * datos.
    * Si no hay ningún flujo con datos disponible se lanza la excpeción NoSuchElementException.
-   * @return un objeto ID_SocketInputStream que contiene datos que leer.
+   * @return un objeto ClusterMemberInputStream que contiene datos que leer.
    */
-  public ID_SocketInputStream nextID_SocketInputStream() throws NoSuchElementException
+  public ClusterMemberInputStream nextID_SocketInputStream() throws NoSuchElementException
   {
     //Ver primero si hay datos, si no "pa" que vamos a devolver un flujo.
     try
@@ -206,7 +206,7 @@ public class ClusterNetInputStream implements Enumeration
    {
     while(i.hasNext())
      {
-        ID_SocketInputStream id = (ID_SocketInputStream) i.next();
+        ClusterMemberInputStream id = (ClusterMemberInputStream) i.next();
         id.close();
      }
 

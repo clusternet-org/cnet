@@ -179,9 +179,9 @@ class TPDUCGL extends TPDU implements Cloneable
   private TreeMap treeMapIDGL = null;
 
   /**
-   * IDGL Emisor
+   * ClusterGroupID Emisor
    */
-  private IDGL IDGL_EMISOR = null;
+  private ClusterGroupID IDGL_EMISOR = null;
 
   /**
    * TreeMap de ID_SOCKET
@@ -189,9 +189,9 @@ class TPDUCGL extends TPDU implements Cloneable
   private TreeMap treeMapID_SOCKET = null;
 
   /**
-   * ID_Socket Almacena un objeto IPv4 y el Puerto Unicast.
+   * ClusterMemberID Almacena un objeto IPv4 y el Puerto Unicast.
    */
-  private ID_Socket ID_SOCKET = null;
+  private ClusterMemberID ID_SOCKET = null;
 
   /**
    * Número de Secuencia para los TPDU CGL
@@ -239,9 +239,9 @@ class TPDUCGL extends TPDU implements Cloneable
    * @param flagIP Campo FlagIP
    * @param N_MAX_SOCKETS Campo N_MAX_SOCKETS
    * @param N_SOCKETS Campo N_SOCKETS
-   * @param treeMapIDGL Campos IDGL
+   * @param treeMapIDGL Campos ClusterGroupID
    * @param treeMapID_SOCKET Campos ID_SOCkETs
-   * @param ID_SOCKET Campo ID_Socket
+   * @param ID_SOCKET Campo ClusterMemberID
    * @return objeto TPDUCGL creado
    * @exception ParametroInvalidoexcepcion
    * @exception ClusterNetExcepcion
@@ -256,7 +256,7 @@ class TPDUCGL extends TPDU implements Cloneable
     int N_SOCKETS,
     TreeMap treeMapIDGL,
     TreeMap treeMapID_SOCKET,
-    ID_Socket ID_SOCKET)
+    ClusterMemberID ID_SOCKET)
    throws ClusterNetInvalidParameterException, ClusterNetExcepcion
   {
     final String mn = "TPDUCGL.crearTPDUCGL";
@@ -344,10 +344,10 @@ class TPDUCGL extends TPDU implements Cloneable
    * @param flagIP Campo FlagIP
    * @param N_MAX_SOCKETS Campo N_MAX_SOCKETS
    * @param N_SOCKETS Campo N_SOCKETS
-   * @param IDGL_EMISOR IDGL Emisor
-   * @param treeMapIDGL Campos IDGL
+   * @param IDGL_EMISOR ClusterGroupID Emisor
+   * @param treeMapIDGL Campos ClusterGroupID
    * @param treeMapID_SOCKET Campos ID_SOCkETs
-   * @param ID_SOCKET Campo ID_Socket
+   * @param ID_SOCKET Campo ClusterMemberID
    * @return objeto TPDUCGL creado
    * @exception ParametroInvalidoexcepcion
    * @exception ClusterNetExcepcion
@@ -360,10 +360,10 @@ class TPDUCGL extends TPDU implements Cloneable
     boolean flagIP,
     int N_MAX_SOCKETS,
     int N_SOCKETS,
-    IDGL IDGL_EMISOR,
+    ClusterGroupID IDGL_EMISOR,
     TreeMap treeMapIDGL,
     TreeMap treeMapID_SOCKET,
-    ID_Socket ID_SOCKET)
+    ClusterMemberID ID_SOCKET)
    throws ClusterNetInvalidParameterException, ClusterNetExcepcion
   {
     final String mn = "TPDUCGL.crearTPDUCGL";
@@ -404,7 +404,7 @@ class TPDUCGL extends TPDU implements Cloneable
       }
       if (IDGL_EMISOR != null)
       {
-          tamaño += 6/*IDGL*/ + 1/*TTL*/; //bytes
+          tamaño += 6/*ClusterGroupID*/ + 1/*TTL*/; //bytes
           resultTPDU.N_IDS += 1;
       }
 
@@ -555,12 +555,12 @@ class TPDUCGL extends TPDU implements Cloneable
         Iterator iterator = this.treeMapIDGL.keySet().iterator();
         while(iterator.hasNext())
         {
-         IDGL idgl = (IDGL) iterator.next();
-         bufferResult.addBytes(idgl.id,0,offset,6);
+         ClusterGroupID clusterGroupID = (ClusterGroupID) iterator.next();
+         bufferResult.addBytes(clusterGroupID.id,0,offset,6);
          offset += 6;
-         bufferResult.addByte((byte)idgl.TTL,offset);
+         bufferResult.addByte((byte)clusterGroupID.TTL,offset);
          offset += 1;
-         //Log.debug(Log.TPDU_CGL,mn,"ID_GRUPO_LOCAL "+i+": "+idgl);
+         //Log.debug(Log.TPDU_CGL,mn,"ID_GRUPO_LOCAL "+i+": "+clusterGroupID);
         }
 
       }
@@ -586,7 +586,7 @@ class TPDUCGL extends TPDU implements Cloneable
           while( iterator.hasNext())
           {
 
-           ID_Socket id = (ID_Socket) iterator.next();
+           ClusterMemberID id = (ClusterMemberID) iterator.next();
            bufferResult.addBytes(id.getDireccion().ipv4,0,offset,4);
            offset += 4;
            bufferResult.addShort(id.getPuertoUnicast(),offset);
@@ -729,16 +729,16 @@ class TPDUCGL extends TPDU implements Cloneable
       //Si el TPDU es GRUPO_LOCAL_VECINO, obtener el IDGL_EMISOR
       if(bGLVecino)
       {
-        tpduCGL.IDGL_EMISOR = new IDGL(new Buffer(buf.getBytes(offset, 6)),(byte)0);
+        tpduCGL.IDGL_EMISOR = new ClusterGroupID(new Buffer(buf.getBytes(offset, 6)),(byte)0);
         tpduCGL.IDGL_EMISOR.TTL = buf.getByte(offset+6);
       }
 
       for (int i = 0; i < tpduCGL.N_IDS; i++) {
-        IDGL idgl = new IDGL(new Buffer(buf.getBytes(offset, 6)),(byte)0);
+        ClusterGroupID clusterGroupID = new ClusterGroupID(new Buffer(buf.getBytes(offset, 6)),(byte)0);
         offset += 6;
-        idgl.TTL = buf.getByte(offset);
-        tpduCGL.treeMapIDGL.put(idgl,null);
-        //Log.debug(Log.TPDU_CGL,mn,"ID_GRUPO_LOCAL "+(i+1)+": "+idgl.toString());
+        clusterGroupID.TTL = buf.getByte(offset);
+        tpduCGL.treeMapIDGL.put(clusterGroupID,null);
+        //Log.debug(Log.TPDU_CGL,mn,"ID_GRUPO_LOCAL "+(i+1)+": "+clusterGroupID.toString());
         offset += 1;
       }
     }
@@ -749,7 +749,7 @@ class TPDUCGL extends TPDU implements Cloneable
     else if (tpduCGL.IP==1 && tpduCGL.N_IDS > 0)
     {
       //Primer ID_SOCKET aparte..
-      tpduCGL.ID_SOCKET = new ID_Socket(new IPv4(new Buffer(buf.getBytes(offset, 4))),buf.getShort(offset+4));
+      tpduCGL.ID_SOCKET = new ClusterMemberID(new IPv4(new Buffer(buf.getBytes(offset, 4))),buf.getShort(offset+4));
      // Log.log("CGLThread","ID_SOCKET: "+tpduCGL.ID_SOCKET);
       offset += 6;
 
@@ -763,7 +763,7 @@ class TPDUCGL extends TPDU implements Cloneable
 
        for (int i = 1; i < tpduCGL.N_IDS; i++)
        {
-        ID_Socket id = new ID_Socket( new IPv4(new Buffer(buf.getBytes(offset, 4))),buf.getShort(offset+4) );
+        ClusterMemberID id = new ClusterMemberID( new IPv4(new Buffer(buf.getBytes(offset, 4))),buf.getShort(offset+4) );
         tpduCGL.treeMapID_SOCKET.put(id,null);
         //Log.log("CGLThread","ID_SOCKET "+id);
         offset += 6;
@@ -875,23 +875,23 @@ class TPDUCGL extends TPDU implements Cloneable
   /**
    * Obtiene el campo IDGL_EMISOR
    */
-  IDGL getIDGL_EMISOR() { return IDGL_EMISOR;}
+  ClusterGroupID getIDGL_EMISOR() { return IDGL_EMISOR;}
 
   //==========================================================================
   /**
-   * Obtiene el TreeMap IDGL
+   * Obtiene el TreeMap ClusterGroupID
    */
   TreeMap getTreeMapIDGL() { return treeMapIDGL;}
 
   //==========================================================================
   /**
-   * Obtiene el TreeMap ID_Socket
+   * Obtiene el TreeMap ClusterMemberID
    */
   TreeMap getTreeMapID_SOCKET() {return treeMapID_SOCKET;}
 
   //==========================================================================
   /**
-   * Obtiene el campo ID_Socket
+   * Obtiene el campo ClusterMemberID
    */
-  ID_Socket getID_SOCKET(){ return ID_SOCKET;}
+  ClusterMemberID getID_SOCKET(){ return ID_SOCKET;}
 }

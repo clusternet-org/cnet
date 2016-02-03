@@ -148,17 +148,17 @@ public class TPDUDatosNormal extends TPDUDatos
   * campos de la cabecera común.
   * @param puertoMulticast
   * @param puertoUnicast
-  * @param idgl
+  * @param clusterGroupID
   * @param dirIp dirección IP unicast del emisor del TPDUDatosNormal
   * @param puertoUnicastFuente puerto unicast fuente
   */
   private TPDUDatosNormal (int puertoMulticast,
                            int puertoUnicast,
-                           IDGL idgl,
+                           ClusterGroupID clusterGroupID,
                            IPv4 dirIp)
     throws ClusterNetExcepcion,ClusterNetInvalidParameterException
   {
-   super (puertoMulticast,puertoUnicast,idgl,dirIp);
+   super (puertoMulticast,puertoUnicast,clusterGroupID,dirIp);
   }
 
   //==========================================================================
@@ -270,7 +270,7 @@ public class TPDUDatosNormal extends TPDUDatos
   * Crea un TPDUDatosNormal con la información facilitada.
   * @param puertoMulticast
   * @param puertoUnicast
-  * @param idgl
+  * @param clusterGroupID
   * @param dirIP
   * @param setIR
   * @param setACK
@@ -286,7 +286,7 @@ public class TPDUDatosNormal extends TPDUDatos
   */
  static TPDUDatosNormal crearTPDUDatosNormal (int puertoMulticast,
                                               int puertoUnicast,
-                                              IDGL idgl,
+                                              ClusterGroupID clusterGroupID,
                                               IPv4 dirIp,
                                               boolean setIR,
                                               boolean setACK,
@@ -302,7 +302,7 @@ public class TPDUDatosNormal extends TPDUDatos
    TPDUDatosNormal resultTPDU = null;
 
    // Crear el TPDUDatosNormal vacio
-   resultTPDU = new TPDUDatosNormal (puertoMulticast,puertoUnicast,idgl,dirIp);
+   resultTPDU = new TPDUDatosNormal (puertoMulticast,puertoUnicast,clusterGroupID,dirIp);
    // if (datos!=null)
    resultTPDU.BUFFERDATOS = (Buffer)datos;//.clone();
    //else

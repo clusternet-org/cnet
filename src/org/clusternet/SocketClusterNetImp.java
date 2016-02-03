@@ -233,7 +233,7 @@ class SocketClusterNetImp
 
             // ALEX: 27/04/2003  --> Creo que NO, es necesario el descarte del loop
             // Tengo que reaactivar la entrada del loop para que en el caso de que halla un único socket
-            // por grupo (idgl) el socket envíe los asentimientos correspondiente, es necesario por tanto
+            // por grupo (clusterGroupID) el socket envíe los asentimientos correspondiente, es necesario por tanto
             // escuchar los TPDUS que se envían y procesarlos
 
             // DESCARTAR LOS PAQUETES ENVIADOS POR "NOZZOTROS", POR ESTE SOCKET, EN JAVA NO HAY
@@ -787,15 +787,15 @@ class SocketClusterNetImp
    * Devuelve el identificador (ID_SOCKET) de este socket
    * @return el ID_SOCKET de este socket ClusterNet.
    */
-   ID_Socket getID_Socket() {return this.getAddressLocal().toID_Socket(); }
+   ClusterMemberID getID_Socket() {return this.getAddressLocal().toID_Socket(); }
 
 
   //==========================================================================
   /**
-   * Este método devuelve el IDGL de este socket.
-   * @return Objeto IDGL
+   * Este método devuelve el ClusterGroupID de este socket.
+   * @return Objeto ClusterGroupID
    */
-  IDGL getIDGL ()
+  ClusterGroupID getIDGL ()
   {
     if(this.modo == ClusterNet.MODE_RELIABLE || this.modo == ClusterNet.MODE_DELAYED_RELIABLE)
       return this.cglThread.getIDGL();
@@ -968,13 +968,13 @@ class SocketClusterNetImp
    * Envía un evento ClusterNetEvent del tipo EVENTO_IDGL
    * con una cadena informativa.
    * @param mensaje Mensaje Informativo
-   * @param idgl Objeto IDGL que ha sido añadido al grupo
+   * @param clusterGroupID Objeto ClusterGroupID que ha sido añadido al grupo
    */
-   void sendPTMFEventAddIDGL(String mensaje,IDGL idgl)
+   void sendPTMFEventAddIDGL(String mensaje,ClusterGroupID clusterGroupID)
    {
     if (this.listaPTMFIDGLListeners.size() != 0)
     {
-     ClusterNetEventGroup evento = new ClusterNetEventGroup(this,mensaje,idgl,true);
+     ClusterNetEventGroup evento = new ClusterNetEventGroup(this,mensaje,clusterGroupID,true);
 
      Iterator iterator = this.listaPTMFIDGLListeners.listIterator();
      while(iterator.hasNext())
@@ -990,13 +990,13 @@ class SocketClusterNetImp
    * Envía un evento ClusterNetEvent del tipo EVENTO_IDGL
    * con una cadena informativa.
    * @param mensaje Mensaje Informativo
-   * @param idgl Objeto IDGL que ha sido eliminado
+   * @param clusterGroupID Objeto ClusterGroupID que ha sido eliminado
    */
-   void sendPTMFEventRemoveIDGL(String mensaje,IDGL idgl)
+   void sendPTMFEventRemoveIDGL(String mensaje,ClusterGroupID clusterGroupID)
    {
     if (this.listaPTMFIDGLListeners.size() != 0)
     {
-     ClusterNetEventGroup evento = new ClusterNetEventGroup(this,mensaje,idgl,false);
+     ClusterNetEventGroup evento = new ClusterNetEventGroup(this,mensaje,clusterGroupID,false);
 
      Iterator iterator = this.listaPTMFIDGLListeners.listIterator();
      while(iterator.hasNext())
@@ -1012,9 +1012,9 @@ class SocketClusterNetImp
    * Envía un evento ClusterNetEvent del tipo EVENTO_ADD_IDGL
    * con una cadena informativa.
    * @param mensaje Mensaje Informativo
-   * @param id_socket Objeto IDGL que ha sido añadido al grupo
+   * @param id_socket Objeto ClusterGroupID que ha sido añadido al grupo
    */
-   void sendPTMFEventAddID_Socket(String mensaje,ID_Socket id_socket)
+   void sendPTMFEventAddID_Socket(String mensaje,ClusterMemberID id_socket)
    {
     if (this.listaPTMFID_SocketListeners.size() != 0)
     {
@@ -1034,9 +1034,9 @@ class SocketClusterNetImp
    * Envía un evento ClusterNetEvent del tipo EVENTO_REMOVE_ID_SOCKET
    * con una cadena informativa.
    * @param mensaje Mensaje Informativo
-   * @param id_socket Objeto ID_Socket que ha sido eliminado
+   * @param id_socket Objeto ClusterMemberID que ha sido eliminado
    */
-   void sendPTMFEventRemoveID_Socket(String mensaje,ID_Socket id_socket)
+   void sendPTMFEventRemoveID_Socket(String mensaje,ClusterMemberID id_socket)
    {
     if (this.listaPTMFID_SocketListeners.size() != 0)
     {
@@ -1056,7 +1056,7 @@ class SocketClusterNetImp
    * Envía un evento ClusterNetEvent del tipo EVENTO_DATOS_RECIBIDOS
    * con una cadena informativa.
    * @param mensaje Mensaje Informativo
-   * @param id_socket Objeto ID_Socket que ha sido eliminado
+   * @param id_socket Objeto ClusterMemberID que ha sido eliminado
    */
    void sendPTMFEventDatosRecibidos(String mensaje,int nBytes)
    {
@@ -1283,7 +1283,7 @@ class SocketClusterNetImp
 
     // ALEX: 27/04/2003
     // Tengo que reaactivar la entrada del loop para que en el caso de que halla un único socket
-    // por grupo (idgl) el socket envíe los asentimientos correspondiente, es necesario por tanto
+    // por grupo (clusterGroupID) el socket envíe los asentimientos correspondiente, es necesario por tanto
     // escuchar los TPDUS que se envían y procesarlos
 
     // DESCARTAR LOS PAQUETES ENVIADOS POR "NOZZOTROS", POR ESTE SOCKET, EN JAVA NO HAY

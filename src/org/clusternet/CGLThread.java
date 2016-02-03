@@ -73,7 +73,7 @@ class CGLThread extends Thread
   /** Timepo minimo de espera en temporizadores */
   private static final int T_BASE = 10;
 
-  /** Nï¿½ Mï¿½ximo de intentos de bï¿½squeda de CGL para un IDGL Emisor.*/
+  /** Nï¿½ Mï¿½ximo de intentos de bï¿½squeda de CGL para un ClusterGroupID Emisor.*/
   private static final short MAX_INTENTOS_BUSQUEDA_GL_EMISOR = 1;
 
   /** TiME OUT para un TPDU SOCKET_ACEPTADO_EN_GRUPO_LOCAL*/
@@ -176,8 +176,8 @@ class CGLThread extends Thread
 
 
   //== PROTOCOLO CGL ========================================================
-  /** IDGL al que pertenece este socket. */
-  private IDGL idgl = null;
+  /** ClusterGroupID al que pertenece este socket. */
+  private ClusterGroupID clusterGroupID = null;
 
   /** TreeMap de sockets que pertenecen al grupo local. KEY= IPv4 VALUE=null */
   private TreeMap treeMapID_Socket = null;
@@ -185,8 +185,8 @@ class CGLThread extends Thread
 
   /**
    * TreeMap de IDGLs.
-   * KEY= IDGL
-   * VALUE= TreeMap de IDGLS a los que llega el "IDGL" KEY.
+   * KEY= ClusterGroupID
+   * VALUE= TreeMap de IDGLS a los que llega el "ClusterGroupID" KEY.
    */
   private TreeMap treeMapIDGLs = null;
 
@@ -283,7 +283,7 @@ class CGLThread extends Thread
   /** Cola de aceptaciï¿½n de sockets */
   private  LinkedList colaAceptacionID_SOCKET = null;
 
-  /** Lista de interface de notificaciï¿½n ID_Socket */
+  /** Lista de interface de notificaciï¿½n ClusterMemberID */
   private LinkedList listaId_SocketListener = null;
 
   /** Lista de interfaces de notificaciï¿½n ID_SOCKET */
@@ -422,40 +422,40 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Aï¿½adir una interface ID_SocketListener.
+   * Aï¿½adir una interface ClusterMemberListener.
    * @param IDSocketListener
    */
-   void addID_SocketListener(ID_SocketListener id_socketListener)
+   void addID_SocketListener(ClusterMemberListener id_socketListener)
    {
       listaId_SocketListener.add(id_socketListener);
    }
 
   //==========================================================================
   /**
-   * Eliminar una interface ID_SocketListener.
+   * Eliminar una interface ClusterMemberListener.
    * @param IDSocketListener
    */
-   void removeID_SocketListener(ID_SocketListener id_socketListener)
+   void removeID_SocketListener(ClusterMemberListener id_socketListener)
    {
      listaId_SocketListener.remove(id_socketListener);
    }
 
   //==========================================================================
   /**
-   * Aï¿½ade una interface IDGLListener.
-   * @param IDGLListener
+   * Aï¿½ade una interface ClusterGroupListener.
+   * @param ClusterGroupListener
    */
-   void addIDGLListener(IDGLListener idglListener)
+   void addIDGLListener(ClusterGroupListener idglListener)
    {
       this.listaIDGLListener.add(idglListener);
    }
 
   //==========================================================================
   /**
-   * Elimina una interface IDGLListener.
-   * @param IDGLListener
+   * Elimina una interface ClusterGroupListener.
+   * @param ClusterGroupListener
    */
-   void removeIDGLListener(IDGLListener idglListener)
+   void removeIDGLListener(ClusterGroupListener idglListener)
    {
       this.listaIDGLListener.remove(idglListener);
    }
@@ -566,11 +566,11 @@ class CGLThread extends Thread
   //==========================================================================
   /**
    * Se devuelve un TreeMap con los IDGLs que actï¿½an como CG "Padres" para
-   * este socket dado el IDGL del emisor.
+   * este socket dado el ClusterGroupID del emisor.
    *
    * POLï¿½TICA:
    *
-   * Un IDGL Padre es todo aquel IDGL que hemos recibido mediante un mensaje
+   * Un ClusterGroupID Padre es todo aquel ClusterGroupID que hemos recibido mediante un mensaje
    *  GRUPO_LOCAL_VECINO
 
    *  DEVOLVER:
@@ -579,40 +579,40 @@ class CGLThread extends Thread
         -	No existen GL Padres.
    *
    * 2ï¿½ Caso: Si el socket emisor NO Pertenece a este GL.
-        1.Si el IDGL del emisor estï¿½ en la lista listaIDGLs el IDGL emisor es
+        1.Si el ClusterGroupID del emisor estï¿½ en la lista listaIDGLs el ClusterGroupID emisor es
           alcanzable por este GL y por lo tanto serï¿½ GL Padre.
-        2.Si el IDGL del emisor no estï¿½ en la lista listaIDGLs se recorre
-          la lista listaIDGLs para averiguar si en las sublistas de cada IDGL
-          estï¿½ el IDGL Emisor, aquellos IDGLs en cuyas sublistas se halle
-          el IDGL del emisor serï¿½n GLs Padres.
-        3.Si no se encuentra el IDGL Emisor en la lista ni en las sublistas
+        2.Si el ClusterGroupID del emisor no estï¿½ en la lista listaIDGLs se recorre
+          la lista listaIDGLs para averiguar si en las sublistas de cada ClusterGroupID
+          estï¿½ el ClusterGroupID Emisor, aquellos IDGLs en cuyas sublistas se halle
+          el ClusterGroupID del emisor serï¿½n GLs Padres.
+        3.Si no se encuentra el ClusterGroupID Emisor en la lista ni en las sublistas
           de los IDGLs, se recurre a una bï¿½squeda especï¿½fica
           tal como se describe en la secciï¿½n 6.15
 
 
 
    *  -Si llegamos directamente al emisor devolvemos el Emisor
-   *  -Si no llegamos ver si algï¿½nh IDGL Padre Potencial llega y devolver
+   *  -Si no llegamos ver si algï¿½nh ClusterGroupID Padre Potencial llega y devolver
    *    la lista de aquellos que lleguen.
-   *  -Si no hay ningï¿½n IDGL que llegue al IDGL Emisor buscarlo enviando un
+   *  -Si no hay ningï¿½n ClusterGroupID que llegue al ClusterGroupID Emisor buscarlo enviando un
    *    mensaje BUSCAR_GL_PARA_EMISOR. SE BLOQUEA EL THREAD LLAMANTE HASTA QUE
    *    SE OBTENGA UNA RESPUESTA O SE LLEGUE A UN TIME-OUT..
    *
-   * @param idglEmisor IDGL del emisor para el que tenemos que buscar CG "Padres".
-   *  Los IDGL estï¿½n en Key, Value es siempre NULL.
+   * @param idglEmisor ClusterGroupID del emisor para el que tenemos que buscar CG "Padres".
+   *  Los ClusterGroupID estï¿½n en Key, Value es siempre NULL.
    * @return Devuelve un objeto TreeMap con los IDGLs de los Controladores de
    *  grupo padres para este emisor.
    */
-  TreeMap getCGPadres(IDGL idglEmisor)
+  TreeMap getCGPadres(ClusterGroupID idglEmisor)
   {
-      final String mn = "CGLThread.getCGPadres (idgl)";
+      final String mn = "CGLThread.getCGPadres (clusterGroupID)";
       TreeMap treemap = null;
 
 
       if (idglEmisor==null)
         return new TreeMap();
 
-      //1ï¿½ Caso: El IDGL emisor es igual a este.
+      //1ï¿½ Caso: El ClusterGroupID emisor es igual a este.
       if (idglEmisor.equals (this.getIDGL()))
       {
         //DEPURACION
@@ -624,11 +624,11 @@ class CGLThread extends Thread
       //
       // 1ï¿½. Comprobar si estï¿½ en la cache....
       // NOTA: Si llegan nuevos datos que afecten a la cache, esta elimina la
-      // entrada para el IDGL afectado
+      // entrada para el ClusterGroupID afectado
       //
 
-      if( this.cachePadres.containsKey(idgl))
-        return (TreeMap)this.cachePadres.get(idgl);
+      if( this.cachePadres.containsKey(clusterGroupID))
+        return (TreeMap)this.cachePadres.get(clusterGroupID);
 
       //
       // 2.1
@@ -637,11 +637,11 @@ class CGLThread extends Thread
       {
         treemap = new TreeMap();
 
-        Log.debug(Log.CGL,mn,"El IDGL emisor es directamente alcanzable");
+        Log.debug(Log.CGL,mn,"El ClusterGroupID emisor es directamente alcanzable");
 
-        //Obtener el IDGL emisor del treemap , para obtener el TTL correcto...
+        //Obtener el ClusterGroupID emisor del treemap , para obtener el TTL correcto...
         RegistroIDGL_TreeMap reg  = (RegistroIDGL_TreeMap) treeMapIDGLs.get(idglEmisor);
-        treemap.put(reg.idgl,null);
+        treemap.put(reg.clusterGroupID,null);
 
         return treemap;
       }
@@ -657,7 +657,7 @@ class CGLThread extends Thread
       {
           RegistroIDGL_TreeMap reg = (RegistroIDGL_TreeMap) iterator.next();
 
-          if(reg.idgl.equals(this.idgl))
+          if(reg.clusterGroupID.equals(this.clusterGroupID))
           {
             continue;
           }
@@ -669,10 +669,10 @@ class CGLThread extends Thread
                treemap = new TreeMap();
             }
 
-            //Aï¿½adir el IDGL que llega al "Emisor"....
-            treemap.put(reg.idgl,null);
+            //Aï¿½adir el ClusterGroupID que llega al "Emisor"....
+            treemap.put(reg.clusterGroupID,null);
 
-            Log.debug(Log.CGL,mn,"El IDGL emisor se alcanza por:"+ reg.idgl);
+            Log.debug(Log.CGL,mn,"El ClusterGroupID emisor se alcanza por:"+ reg.clusterGroupID);
 
 
           }
@@ -692,7 +692,7 @@ class CGLThread extends Thread
         //.... ï¿½bloqueamos cuando DataThread nos pregunte?
         //.... ï¿½Establecemos un callback? .....
 
-        Log.debug(Log.CGL,mn,"El IDGL emisor no es directamente alcanzable por nadie, iniciando procedimiento de bï¿½squeda...");
+        Log.debug(Log.CGL,mn,"El ClusterGroupID emisor no es directamente alcanzable por nadie, iniciando procedimiento de bï¿½squeda...");
 
         this.treeMapBusquedaEmisores.put(idglEmisor,new Intentos_Emisor(idglEmisor,(short)0));
         this.TTL_BUSCAR_GRUPO_LOCAL_VECINO = 1;
@@ -709,12 +709,12 @@ class CGLThread extends Thread
         this.semaforoDatosThread.down();
 
         //Cuando nos despertemos, puede haber sucedido dos cosas:
-        //1. Se ha encontrado un IDGL "Padre" para el IDGL preguntado y se ha
+        //1. Se ha encontrado un ClusterGroupID "Padre" para el ClusterGroupID preguntado y se ha
         // almacenado en la cache.... ï¿½
-        //2. No se ha encontrado ningï¿½n IDGL "Padre" y no estï¿½ en la cache...
-        if( this.cachePadres.containsKey(idgl))
+        //2. No se ha encontrado ningï¿½n ClusterGroupID "Padre" y no estï¿½ en la cache...
+        if( this.cachePadres.containsKey(clusterGroupID))
         {
-         return (TreeMap)this.cachePadres.get(idgl);
+         return (TreeMap)this.cachePadres.get(clusterGroupID);
         }
 
       }
@@ -729,23 +729,23 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Obtener IDGL "Hijos" que dependen de este IDGL para el Control de la
+   * Obtener ClusterGroupID "Hijos" que dependen de este ClusterGroupID para el Control de la
    * Fiabilidad. Devuelve un TreeMap con los IDGLs
-   *  que actï¿½an como "hijos" para este IDGL dado el IDGL de un determinado emisor.
-   * @param idglEmisor IDGL del emisor para el que tenemos que buscar CG "Hijos".
+   *  que actï¿½an como "hijos" para este ClusterGroupID dado el ClusterGroupID de un determinado emisor.
+   * @param idglEmisor ClusterGroupID del emisor para el que tenemos que buscar CG "Hijos".
    * @return Devuelve un objeto TreeMap con los IDGLs de los Controladores de
    *  de grupo hijos para este emisor.
    */
   private TreeMap getCGHijos()
   {
-   return this.getCGHijos(this.idgl);
+   return this.getCGHijos(this.clusterGroupID);
   }
 
 
   //==========================================================================
   /**
    * Devuelve un TreeMap con los IDGLs  que actï¿½an como "hijos" para
-   * este socket dado un IDGL "Emisor".<br>
+   * este socket dado un ClusterGroupID "Emisor".<br>
                                                     <br>
    *
    * POLï¿½TICA:<br>
@@ -759,41 +759,41 @@ class CGLThread extends Thread
    *
    *  2ï¿½ Caso: Si el socket emisor NO es este o NO pertenece a este GL:
    *           -  Todos aquellos IDGLs de la lista listaIDGLs
-   *                 (menos el IDGL emisor si estï¿½) son considerados como
+   *                 (menos el ClusterGroupID emisor si estï¿½) son considerados como
    *                  GL Hijos solo si en la sublista de estos IDGLs
-   *                  no aparece el IDGL emisor.
+   *                  no aparece el ClusterGroupID emisor.
 
 
-   * @param idglEmisor IDGL del emisor para el que tenemos que buscar CG "Hijos".
+   * @param idglEmisor ClusterGroupID del emisor para el que tenemos que buscar CG "Hijos".
    * @return Devuelve un objeto TreeMap con los IDGLs de los Controladores de
    *  de grupo hijos para este emisor.
    */
-  TreeMap getCGHijos(IDGL idglEmisor)
+  TreeMap getCGHijos(ClusterGroupID idglEmisor)
   {
       TreeMap treemap = null;
       String mn = "CGLThread.getCGHijos";
 
-      if (idglEmisor==null || this.idgl==null)
+      if (idglEmisor==null || this.clusterGroupID==null)
         return new TreeMap();
 
 
       //
       // 1ï¿½. Comprobar si estï¿½ en la cache....
       // NOTA: Si llegan nuevos datos que afecten a la cache, esta elimina la
-      // entrada para el IDGL afectado
+      // entrada para el ClusterGroupID afectado
       //
-      if( this.cacheHijos.containsKey(idgl))
-        return (TreeMap)this.cacheHijos.get(idgl);
+      if( this.cacheHijos.containsKey(clusterGroupID))
+        return (TreeMap)this.cacheHijos.get(clusterGroupID);
 
       //
-      // -1* 1ï¿½ CASO: Si el IDGL Emisor es el mismo que el nuestro:
+      // -1* 1ï¿½ CASO: Si el ClusterGroupID Emisor es el mismo que el nuestro:
       //          -->>>> devolver todos los IDGLs
       //
-      if(idglEmisor.equals(this.idgl))
+      if(idglEmisor.equals(this.clusterGroupID))
       {
-       Log.debug(Log.CGL,mn,"Soy IDGL emisor");
+       Log.debug(Log.CGL,mn,"Soy ClusterGroupID emisor");
        TreeMap treemap1 = (TreeMap)this.treeMapIDGLs.clone();
-       treemap1.remove(this.idgl);
+       treemap1.remove(this.clusterGroupID);
        //Aï¿½adir a la cache...
        this.cacheHijos.put(idglEmisor,treemap1);
 
@@ -806,8 +806,8 @@ class CGLThread extends Thread
 
          while(iterator.hasNext())
          {
-           IDGL idgl = (IDGL) iterator.next();
-           Log.debug(Log.CGL,"","IDGL --> "+idgl);
+           ClusterGroupID clusterGroupID = (ClusterGroupID) iterator.next();
+           Log.debug(Log.CGL,"","ClusterGroupID --> "+clusterGroupID);
          }
        }
 
@@ -815,10 +815,10 @@ class CGLThread extends Thread
       }
 
 
-      // -2* 2ï¿½ CASO: Si el IDGL Emisor Fuente no es este:
-      //      -->>>> Devolver como IDGL Hijos:
+      // -2* 2ï¿½ CASO: Si el ClusterGroupID Emisor Fuente no es este:
+      //      -->>>> Devolver como ClusterGroupID Hijos:
       //            Aquellos IDGLs que no lleguen
-      //            directamente al IDGL Emisor.
+      //            directamente al ClusterGroupID Emisor.
       //
       treemap = new TreeMap();
 
@@ -846,16 +846,16 @@ class CGLThread extends Thread
             continue;
           }
 
-          if(reg.idgl == null)
+          if(reg.clusterGroupID == null)
           { // Log.log("reg.idgl NULL","");
                        continue;
           }
 
           //Si no es el "Emisor" ver si llega al "Emisor"....
-          if( !reg.idgl.equals(idglEmisor) && !reg.idgl.equals(this.idgl) &&reg.treemap!= null && !reg.treemap.containsKey(idglEmisor) )
+          if( !reg.clusterGroupID.equals(idglEmisor) && !reg.clusterGroupID.equals(this.clusterGroupID) &&reg.treemap!= null && !reg.treemap.containsKey(idglEmisor) )
           {
-                //El "IDGL" no llega al "Emisor",depende de nosostros...
-                treemap.put(reg.idgl,null);
+                //El "ClusterGroupID" no llega al "Emisor",depende de nosostros...
+                treemap.put(reg.clusterGroupID,null);
           }
         }
 
@@ -873,9 +873,9 @@ class CGLThread extends Thread
 
         while(iterator1.hasNext())
         {
-          IDGL idgl = (IDGL) iterator1.next();
-           Log.debug(Log.CGL,"","IDGL --> "+idgl);
-          //Log.log("HIJO --> IDGL: "+idgl,"");
+          ClusterGroupID clusterGroupID = (ClusterGroupID) iterator1.next();
+           Log.debug(Log.CGL,"","ClusterGroupID --> "+clusterGroupID);
+          //Log.log("HIJO --> ClusterGroupID: "+clusterGroupID,"");
 
         }
       }
@@ -934,10 +934,10 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Notificar nuevo ID_Socket.
-   * @param ID_Socket Objeto ID_Socket nuevo.
+   * Notificar nuevo ClusterMemberID.
+   * @param ClusterMemberID Objeto ClusterMemberID nuevo.
    */
-   private void notificarNuevoID_Socket(ID_Socket id_socket)
+   private void notificarNuevoID_Socket(ClusterMemberID id_socket)
    {
      if (id_socket == null)
       return;
@@ -945,7 +945,7 @@ class CGLThread extends Thread
       ListIterator iterator = this.listaId_SocketListener.listIterator();
       while(iterator.hasNext())
       {
-        ID_SocketListener  id_socketListener = (ID_SocketListener) iterator.next();
+        ClusterMemberListener  id_socketListener = (ClusterMemberListener) iterator.next();
         id_socketListener.ID_SocketAñadido(id_socket);
       }
 
@@ -957,10 +957,10 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Notificar Eliminaciï¿½n ID_Socket.
-   * @param ID_Socket Objeto ID_Socket eliminado.
+   * Notificar Eliminaciï¿½n ClusterMemberID.
+   * @param ClusterMemberID Objeto ClusterMemberID eliminado.
    */
-   private void notificarEliminacionID_Socket(ID_Socket id_socket)
+   private void notificarEliminacionID_Socket(ClusterMemberID id_socket)
    {
      if (id_socket == null)
       return;
@@ -968,7 +968,7 @@ class CGLThread extends Thread
       ListIterator  iterator = this.listaId_SocketListener.listIterator();
       while(iterator.hasNext())
       {
-        ID_SocketListener  id_socketListener = (ID_SocketListener) iterator.next();
+        ClusterMemberListener  id_socketListener = (ClusterMemberListener) iterator.next();
         id_socketListener.ID_SocketEliminado(id_socket);
       }
       //Y a los usuarios...
@@ -979,47 +979,47 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Notificar nuevo IDGL.
-   * @param IDGL Objeto IDGL nuevo.
+   * Notificar nuevo ClusterGroupID.
+   * @param ClusterGroupID Objeto ClusterGroupID nuevo.
    */
-   private void notificarNuevoIDGL(IDGL idgl)
+   private void notificarNuevoIDGL(ClusterGroupID clusterGroupID)
    {
-     if (idgl == null)
+     if (clusterGroupID == null)
       return;
 
       ListIterator iterator = this.listaIDGLListener.listIterator();
       while(iterator.hasNext())
       {
-        IDGLListener  idglListener = (IDGLListener) iterator.next();
-        idglListener.IDGLAñadido(idgl);
+        ClusterGroupListener  idglListener = (ClusterGroupListener) iterator.next();
+        idglListener.IDGLAñadido(clusterGroupID);
       }
       //Y a los usuarios...
-      this.socketClusterNetImp.sendPTMFEventAddIDGL(""+idgl,idgl);
+      this.socketClusterNetImp.sendPTMFEventAddIDGL(""+clusterGroupID,clusterGroupID);
 
    }
 
   //==========================================================================
   /**
-   * Notificar Eliminaciï¿½n IDGL.
-   * @param IDGL Objeto IDGL eliminado.
+   * Notificar Eliminaciï¿½n ClusterGroupID.
+   * @param ClusterGroupID Objeto ClusterGroupID eliminado.
    */
-   private void notificarEliminacionIDGL(IDGL idgl)
+   private void notificarEliminacionIDGL(ClusterGroupID clusterGroupID)
    {
      String mn = "CGLThread.notificarEliminacionIDGL";
 
-     if (idgl == null)
+     if (clusterGroupID == null)
       return;
 
 
       ListIterator iterator = this.listaIDGLListener.listIterator();
       while(iterator.hasNext())
       {
-        IDGLListener  idglListener = (IDGLListener) iterator.next();
-        idglListener.IDGLEliminado(idgl);
-        Log.debug(Log.CGL,mn,"Notificado a DATOS_THREAD ELIMINACION IDGL: "+idgl);
+        ClusterGroupListener  idglListener = (ClusterGroupListener) iterator.next();
+        idglListener.IDGLEliminado(clusterGroupID);
+        Log.debug(Log.CGL,mn,"Notificado a DATOS_THREAD ELIMINACION ClusterGroupID: "+clusterGroupID);
       }
       //Y a los usuarios...
-      this.socketClusterNetImp.sendPTMFEventRemoveIDGL(""+idgl,idgl);
+      this.socketClusterNetImp.sendPTMFEventRemoveIDGL(""+clusterGroupID,clusterGroupID);
 
 
    }
@@ -1047,14 +1047,14 @@ class CGLThread extends Thread
    private short getTTLGLMaximo()
    {
       Iterator iterator = this.treeMapIDGLs.keySet().iterator();
-      IDGL idgl = null;
+      ClusterGroupID clusterGroupID = null;
       short ttl = 2;
 
       while(iterator.hasNext())
       {
-        idgl = (IDGL) iterator.next();
-        if (ttl < idgl.TTL)
-          ttl = idgl.TTL;
+        clusterGroupID = (ClusterGroupID) iterator.next();
+        if (ttl < clusterGroupID.TTL)
+          ttl = clusterGroupID.TTL;
       }
       //Log.log ("getTTLGLMaximo:",""+ttl);
       return ttl;
@@ -1064,22 +1064,22 @@ class CGLThread extends Thread
   /**
    * Devuelve el TTL mï¿½s grande de todos los IDGLs pasados mediante un TreeMap.
    * @param treemap TreeMap con IDGLS.
-   * @return El TTL Mï¿½ximo de los IDGLs padres para un IDGL dado. Mï¿½nimo devuelve
+   * @return El TTL Mï¿½ximo de los IDGLs padres para un ClusterGroupID dado. Mï¿½nimo devuelve
    * el valor 1.
    */
    short getTTLGLMaximo(TreeMap treemap)
    {
       Iterator iterator = treemap.keySet().iterator();
-      IDGL idgl = null;
+      ClusterGroupID clusterGroupID = null;
       short ttl = 1;
 
       while(iterator.hasNext())
       {
-        idgl = (IDGL) iterator.next();
-        //Log.log("getTTLGLMaximo()--> IDGL: "+idgl,"");
+        clusterGroupID = (ClusterGroupID) iterator.next();
+        //Log.log("getTTLGLMaximo()--> ClusterGroupID: "+clusterGroupID,"");
 
-        if (idgl.TTL > ttl)
-          ttl = idgl.TTL;
+        if (clusterGroupID.TTL > ttl)
+          ttl = clusterGroupID.TTL;
       }
 
       //Log.log ("getTTLGLMaximo (treeMap):",""+ttl);
@@ -1093,7 +1093,7 @@ class CGLThread extends Thread
    *  socket que se ha caï¿½do o no responde y se quita de la lista.
    * @param id_socket El socket que se elimina de la lista.
    */
-  void removeID_SOCKET(ID_Socket id_socket)
+  void removeID_SOCKET(ClusterMemberID id_socket)
   {
     //Eliminar
     this.treeMapID_Socket.remove(id_socket);
@@ -1118,15 +1118,15 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Elimina un IDGL, del treemap treemapIDGLVecinos
+   * Elimina un ClusterGroupID, del treemap treemapIDGLVecinos
    */
-  void removeIDGL (IDGL idgl)
+  void removeIDGL (ClusterGroupID clusterGroupID)
   {
-    if (this.idgl.equals(idgl))
+    if (this.clusterGroupID.equals(clusterGroupID))
       return;
 
-    //Eliminar el IDGL del Treemap
-    this.treeMapIDGLs.remove(idgl);
+    //Eliminar el ClusterGroupID del Treemap
+    this.treeMapIDGLs.remove(clusterGroupID);
 
 
     //Y de los Treemaps internos de Padres Potenciales...
@@ -1135,14 +1135,14 @@ class CGLThread extends Thread
     {
        RegistroIDGL_TreeMap reg = (RegistroIDGL_TreeMap)iterator.next();
        if(reg.treemap!=null)
-         reg.treemap.remove(idgl);
+         reg.treemap.remove(clusterGroupID);
     }
 
     //Comprobar cache...
-    comprobarCache(idgl);
+    comprobarCache(clusterGroupID);
 
     //Notificar eliminaciï¿½n a las clases de ClusterNet....
-    this.notificarEliminacionIDGL(idgl);
+    this.notificarEliminacionIDGL(clusterGroupID);
    }
 
   //==========================================================================
@@ -1181,7 +1181,7 @@ class CGLThread extends Thread
   /**
    * Devuelve true si id_socket pertenece a este mismo grupo local (es vecino).
    */
-  boolean esVecino (ID_Socket id_socket)
+  boolean esVecino (ClusterMemberID id_socket)
   {
    return this.treeMapID_Socket.containsKey (id_socket);
   }
@@ -1201,7 +1201,7 @@ class CGLThread extends Thread
   /**
    * Devuelve true si idglPadre es padre jerï¿½rquico para idglFuente.
    */
-  boolean esPadre(IDGL idglPadre,IDGL idglFuente)
+  boolean esPadre(ClusterGroupID idglPadre,ClusterGroupID idglFuente)
   {
     if ((idglPadre==null)||(idglFuente==null))
      return false;
@@ -1229,7 +1229,7 @@ class CGLThread extends Thread
   /**
    * Devuelve true si idglHijo es hijo jerï¿½rquico para idglFuente.
    */
-  boolean esHijo (IDGL idglHijo,IDGL idglFuente)
+  boolean esHijo (ClusterGroupID idglHijo,ClusterGroupID idglFuente)
   {
    if ((idglHijo==null)||(idglFuente==null))
      return false;
@@ -1516,7 +1516,7 @@ class CGLThread extends Thread
 
       //
       // CREAR:
-      //  1ï¿½ IDGL PARA EL GRUPO LOCAL QUE VAMOS A CREAR...
+      //  1ï¿½ ClusterGroupID PARA EL GRUPO LOCAL QUE VAMOS A CREAR...
       //  2ï¿½ Establecer nï¿½ mï¿½ximo de sockets en el grupo.
       //  3ï¿½ Crear vectores (IP, IDGLs, ...)
       //  4ï¿½ Aï¿½adirnos al treeMapId_Socket, lï¿½a lista de sockets del grupo
@@ -1526,15 +1526,15 @@ class CGLThread extends Thread
        buf.addBytes( new Buffer(this.socketClusterNetImp.getAddressLocal().getInetAddress().getAddress()),0,4);
        buf.addShort(this.socketClusterNetImp.getCanalUnicast().getAddressUnicast().getPort(),4);
 
-       this.idgl = new IDGL(buf,(byte)0);
+       this.clusterGroupID = new ClusterGroupID(buf,(byte)0);
        this.N_MAX_SOCKETS_GL = ClusterNet.MAX_SOCKETS_GL;
        this.N_SOCKETS = 1;
 
-       //aï¿½adir idgl
-       addIDGL(this.idgl,null);
+       //aï¿½adir clusterGroupID
+       addIDGL(this.clusterGroupID,null);
 
        // Aï¿½adir este socket al vector de ID_SOCKETS del grupo.
-       ID_Socket id = this.socketClusterNetImp.getID_Socket();
+       ClusterMemberID id = this.socketClusterNetImp.getID_Socket();
        this.addID_Socket(id);
       }
       catch(ClusterNetInvalidParameterException e)
@@ -1554,7 +1554,7 @@ class CGLThread extends Thread
 
 
       //Notificar creaciï¿½n...
-      this.socketClusterNetImp.sendPTMFEventConexion("CGL: Crear GL ->"+ this.idgl);
+      this.socketClusterNetImp.sendPTMFEventConexion("CGL: Crear GL ->"+ this.clusterGroupID);
 
 
       //
@@ -1800,7 +1800,7 @@ class CGLThread extends Thread
             Log.debug(Log.CGL,mn,"Estado CGL: ClusterNet.ESTADO_CGL_ESPERAR_ACEPTACION_GL");
             //Log.log("CGLThread","Estado CGL: ClusterNet.ESTADO_CGL_ESPERAR_ACEPTACION_GL");
 
-            this.socketClusterNetImp.sendPTMFEventConexion("CGL: Esperar aceptaciï¿½n en Grupo Local: "+ this.idgl);
+            this.socketClusterNetImp.sendPTMFEventConexion("CGL: Esperar aceptaciï¿½n en Grupo Local: "+ this.clusterGroupID);
 
 
             break;
@@ -1816,8 +1816,8 @@ class CGLThread extends Thread
             this.socketClusterNetImp.setGrupoMcastActivo(true);
 
             Log.debug(Log.CGL,mn,"Estado CGL: ClusterNet.ESTADO_MIEMBRO_GL");
-            Log.debug(Log.CGL,mn,"IDGL: " +  this.idgl);
-            this.socketClusterNetImp.sendPTMFEventConexion("CGL: Miembro Grupo Local: "+  this.idgl);
+            Log.debug(Log.CGL,mn,"ClusterGroupID: " +  this.clusterGroupID);
+            this.socketClusterNetImp.sendPTMFEventConexion("CGL: Miembro Grupo Local: "+  this.clusterGroupID);
 
             //
             // LIBERAR THREAD DE LA APLICACIï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
@@ -1861,7 +1861,7 @@ class CGLThread extends Thread
             //
             this.treeMapID_Socket = null;
             this.treeMapIDGLs = null;
-            this.idgl = null;
+            this.clusterGroupID = null;
             this.N_SOCKETS=0;
             this.N_MAX_SOCKETS_GL=0;
             this.TTL = 0;
@@ -1906,12 +1906,12 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Este mï¿½todo devuelve el IDGL de este socket.
-   * @return Objeto IDGL
+   * Este mï¿½todo devuelve el ClusterGroupID de este socket.
+   * @return Objeto ClusterGroupID
    */
-  IDGL getIDGL ()
+  ClusterGroupID getIDGL ()
   {
-   return this.idgl;
+   return this.clusterGroupID;
   }
 
 
@@ -1972,7 +1972,7 @@ class CGLThread extends Thread
 
     Log.debug(Log.CGL,mn,"TPDUCGL <-- SOCKET_ACEPTADO_EN_GRUPO_LOCAL "+tpduCGL.getIDGL() );
 
-    if (! tpduCGL.getIDGL().equals(this.idgl))
+    if (! tpduCGL.getIDGL().equals(this.clusterGroupID))
         return;
 
     if(getEstadoCGL() == ClusterNet.ESTADO_CGL_ESPERAR_ACEPTACION_GL)
@@ -1988,7 +1988,7 @@ class CGLThread extends Thread
 
         //1. Cancelar temporizador de bï¿½squeda de grupo local y time out
         //2.  y el flag correspondiente de notificaciï¿½n,
-        //3.  y quitar el ID_Socket de la cola de aceptaciï¿½n
+        //3.  y quitar el ClusterMemberID de la cola de aceptaciï¿½n
         this.socketClusterNetImp.getTemporizador().cancelarFuncion(this.timerHandler,EVENTO_BUSCAR_GL);
         this.socketClusterNetImp.getTemporizador().cancelarFuncion(this.timerHandler,EVENTO_TIME_OUT);
 
@@ -2008,7 +2008,7 @@ class CGLThread extends Thread
         //Log.log("2. tREEMAP id_sOCKETS "+this.treeMapID_Socket,"");
 
         //Socket aceptado
-        this.socketClusterNetImp.sendPTMFEventConexion("CGL: ClusterNet aceptado en Grupo Local: "+ this.idgl);
+        this.socketClusterNetImp.sendPTMFEventConexion("CGL: ClusterNet aceptado en Grupo Local: "+ this.clusterGroupID);
 
 
         //
@@ -2070,7 +2070,7 @@ class CGLThread extends Thread
     String mn = "CGLThread.procesarTPDU_CGL_UNIRSE_A_GRUPO_LOCAL";
     Log.debug(Log.CGL,mn,"TPDUCGL <-- UNIRSE_A_GRUPO_LOCAL"+"\n"+tpduCGL.getIDGL());
 
-    if (!tpduCGL.getIDGL().equals(this.idgl))
+    if (!tpduCGL.getIDGL().equals(this.clusterGroupID))
         return;
 
     if (!tpduCGL.getFlagIP() )
@@ -2117,7 +2117,7 @@ class CGLThread extends Thread
 
         Log.debug(Log.CGL,mn,"TPDUCGL <-- DEJAR_GRUPO_LOCAL "+tpduCGL.getIDGL());
 
-        if (! tpduCGL.getIDGL().equals(this.idgl))
+        if (! tpduCGL.getIDGL().equals(this.clusterGroupID))
           return;
 
         if (!tpduCGL.getFlagIP())
@@ -2160,10 +2160,10 @@ class CGLThread extends Thread
 
         Log.debug(Log.CGL,mn,"TPDUCGL <-- ELIMINACION_GRUPO_LOCAL"+"\n"+tpduCGL.getIDGL());
 
-        if (! tpduCGL.getIDGL().equals(this.idgl))
+        if (! tpduCGL.getIDGL().equals(this.clusterGroupID))
         {
           //
-          //Quitar idgl del grupo local eliminado
+          //Quitar clusterGroupID del grupo local eliminado
           //
           this.removeIDGL(tpduCGL.getIDGL());
           comprobarCache(tpduCGL.getIDGL());
@@ -2198,12 +2198,12 @@ class CGLThread extends Thread
      Log.debug(Log.CGL,mn,"TPDUCGL <-- BUSCAR_GRUPO_LOCAL_VECINO "+tpduCGL.getIDGL());
     //Log.log("CGLThread","TPDUCGL <-- BUSCAR_GRUPO_LOCAL_VECINO "+tpduCGL.getIDGL());
 
-    if(!tpduCGL.getIDGL().equals(this.idgl))
+    if(!tpduCGL.getIDGL().equals(this.clusterGroupID))
     {
-     //Almacenar el IDGL Vecino...
+     //Almacenar el ClusterGroupID Vecino...
      addIDGL();
 
-     //Recordar el IDGL (y el TTL especialmente)
+     //Recordar el ClusterGroupID (y el TTL especialmente)
      this.treeMapRespuestaGLVecinos.put(tpduCGL.getIDGL(),null);
 
      if (!bLanzadoTemporizadorNotificacionGLVecino)
@@ -2269,10 +2269,10 @@ class CGLThread extends Thread
       return;
 
     //Si no es de nuestro Grupo Local este socket...
-    if(!tpduCGL.getIDGL().equals(this.idgl))
+    if(!tpduCGL.getIDGL().equals(this.clusterGroupID))
     {
-      //Ver si nosotros somos CG para ese IDGL Emisor...
-      if (this.esHijo((IDGL)tpduCGL.getIDGL_EMISOR(),this.idgl))
+      //Ver si nosotros somos CG para ese ClusterGroupID Emisor...
+      if (this.esHijo((ClusterGroupID)tpduCGL.getIDGL_EMISOR(),this.clusterGroupID))
       {
         //Almacenar el IDGL_EMISOR del emisor para el que se busca "Padre" en la lista de respuesta....
         this.treeMapRespuestaBusquedaEmisores.put( tpduCGL.getIDGL_EMISOR(),null);
@@ -2299,12 +2299,12 @@ class CGLThread extends Thread
       return;
 
 
-    if((!tpduCGL.getIDGL().equals(this.idgl)) && (this.treeMapBusquedaEmisores.containsKey(tpduCGL.getIDGL_EMISOR())))
+    if((!tpduCGL.getIDGL().equals(this.clusterGroupID)) && (this.treeMapBusquedaEmisores.containsKey(tpduCGL.getIDGL_EMISOR())))
     {
-      // eliminar IDGL ....
+      // eliminar ClusterGroupID ....
       this.treeMapBusquedaEmisores.remove(tpduCGL.getIDGL_EMISOR());
 
-      //Guardar IDGL...
+      //Guardar ClusterGroupID...
       this.addIDGL();
 
       //Despertar DataThread...
@@ -2318,14 +2318,14 @@ class CGLThread extends Thread
       }
     }
 
-    if(tpduCGL.getIDGL().equals(this.idgl))
+    if(tpduCGL.getIDGL().equals(this.clusterGroupID))
     {
       //Otro socket ha notificado el mensaje....
 
       //Cancelar temporizador de notificaciï¿½n....
       this.socketClusterNetImp.getTemporizador().cancelarFuncion(this.timerHandler,this.EVENTO_NOTIFICAR_GL_EMISOR);
 
-      //Si la respuesta se ha dado para un IDGL del que tambiï¿½n nosotros debemos
+      //Si la respuesta se ha dado para un ClusterGroupID del que tambiï¿½n nosotros debemos
       // dar respuesta, eliminar nuestra respuesta....
       this.treeMapRespuestaBusquedaEmisores.remove( tpduCGL.getIDGL_EMISOR());
     }
@@ -2355,14 +2355,14 @@ class CGLThread extends Thread
         Iterator iterator = tpduCGL.getTreeMapIDGL().keySet().iterator();
         while(iterator.hasNext())
         {
-          IDGL idgl = (IDGL) iterator.next();
-          Log.debug(Log.CGL,mn,"IDGL <--- "+idgl);
+          ClusterGroupID clusterGroupID = (ClusterGroupID) iterator.next();
+          Log.debug(Log.CGL,mn,"ClusterGroupID <--- "+clusterGroupID);
         }
       }
 
      if(this.getEstadoCGL() == ClusterNet.ESTADO_CGL_BUSCAR_GL)
      {
-        //Almacenar el IDGL y la lista...
+        //Almacenar el ClusterGroupID y la lista...
         addIDGL();
 
         //Comprobar que nos podemos unir al grupo...
@@ -2372,7 +2372,7 @@ class CGLThread extends Thread
         //
         // Almacenar datos del GL
         //
-        this.idgl = tpduCGL.getIDGL();
+        this.clusterGroupID = tpduCGL.getIDGL();
         this.N_MAX_SOCKETS_GL = tpduCGL.getN_MAX_SOCKETS();
         this.N_SOCKETS = tpduCGL.getN_SOCKETS();
 
@@ -2395,7 +2395,7 @@ class CGLThread extends Thread
      }
      else if(this.getEstadoCGL() == ClusterNet.ESTADO_CGL_MIEMBRO_GL)// ESTADO MIEMBRO_GL
      {
-        if(tpduCGL.getIDGL().equals(this.idgl))
+        if(tpduCGL.getIDGL().equals(this.clusterGroupID))
         {
             // Aqui se entra si el emisor del TPDU es de nuestro GRUPO_LOCAL
 
@@ -2410,7 +2410,7 @@ class CGLThread extends Thread
             this.socketClusterNetImp.getTemporizador().cancelarFuncion(this.timerHandler,this.EVENTO_NOTIFICAR_GL);
             this.bNotificarGL= false;
 
-            //Eliminar el IDGL....
+            //Eliminar el ClusterGroupID....
             this.treeMapRespuestaGLVecinos.remove(tpduCGL.getIDGL());
         }
         else
@@ -2419,10 +2419,10 @@ class CGLThread extends Thread
            //2.  y el flag correspondiente de notificaciï¿½n,
            this.socketClusterNetImp.getTemporizador().cancelarFuncion(this.timerHandler,EVENTO_BUSCAR_GL);
 
-           //Eliminar el IDGL.... (AQUï¿½ por si acaso)
+           //Eliminar el ClusterGroupID.... (AQUï¿½ por si acaso)
            this.treeMapRespuestaGLVecinos.remove(tpduCGL.getIDGL());
 
-           //Almacenar el IDGL Padre Potencial
+           //Almacenar el ClusterGroupID Padre Potencial
            addIDGL();
 
         }
@@ -2452,8 +2452,8 @@ class CGLThread extends Thread
 
         while(iterator.hasNext())
         {
-          IDGL idgl = (IDGL) iterator.next();
-          Log.debug(Log.CGL,mn,"IDGL <--- "+idgl);
+          ClusterGroupID clusterGroupID = (ClusterGroupID) iterator.next();
+          Log.debug(Log.CGL,mn,"ClusterGroupID <--- "+clusterGroupID);
         }
      }
      //FIN_DEPURACION
@@ -2463,14 +2463,14 @@ class CGLThread extends Thread
      if(this.getEstadoCGL() == ClusterNet.ESTADO_CGL_BUSCAR_GL_VECINOS)
      {
         //Comprobar si es para nosotros...
-        if(this.idgl != null && tpduCGL.getIDGL_EMISOR().equals(this.idgl))
+        if(this.clusterGroupID != null && tpduCGL.getIDGL_EMISOR().equals(this.clusterGroupID))
         {
            //
            // Cancelar ClusterTimer
            //
            this.socketClusterNetImp.getTemporizador().cancelarFuncion(this.timerHandler,this.EVENTO_BUSCAR_GL_VECINO);
 
-           //Almacenar el IDGL y la lista de IDGLs...
+           //Almacenar el ClusterGroupID y la lista de IDGLs...
            addIDGL();
 
            //
@@ -2480,13 +2480,13 @@ class CGLThread extends Thread
         }
         else
         {
-           //Almacenar el IDGL y la lista de IDGLs...
+           //Almacenar el ClusterGroupID y la lista de IDGLs...
            addIDGL();
         }
      }
      else // ESTADO MIEMBRO_GL
      {
-        if(tpduCGL.getIDGL().equals(this.idgl))
+        if(tpduCGL.getIDGL().equals(this.clusterGroupID))
         {
             // Aqui se entra si el emisor del TPDU es de nuestro GRUPO_LOCAL
 
@@ -2500,7 +2500,7 @@ class CGLThread extends Thread
             this.socketClusterNetImp.getTemporizador().cancelarFuncion(this.timerHandler,this.EVENTO_NOTIFICAR_GL_VECINOS);
             this.bNotificarGL= false;
 
-            //Eliminar el IDGL....
+            //Eliminar el ClusterGroupID....
             this.treeMapRespuestaGLVecinos.remove(tpduCGL.getIDGL());
         }
         else
@@ -2509,10 +2509,10 @@ class CGLThread extends Thread
            //2.  y el flag correspondiente de notificaciï¿½n,
            //this.socketPTMFImp.getTemporizador().cancelarFuncion(this.timerHandler,EVENTO_BUSCAR_GL_VECINOS);
 
-           //Eliminar el IDGL.... (AQUï¿½ por si acaso)
+           //Eliminar el ClusterGroupID.... (AQUï¿½ por si acaso)
            //this.treeMapRespuestaGLVecinos.remove(tpduCGL.getIDGL());
 
-           //Almacenar el IDGL_EMISOR como alcanzable por el IDGL Fuente...
+           //Almacenar el IDGL_EMISOR como alcanzable por el ClusterGroupID Fuente...
            addIDGL(tpduCGL.getIDGL_EMISOR());
 
            //Almacenar toda la lista de IDGLs...
@@ -2549,7 +2549,7 @@ class CGLThread extends Thread
        /*IDGL_EMISOR*/      null,
        /*treeMapIDGL */     (TreeMap)null,
        /*treeMapID_SOCKET */(TreeMap)null ,
-       /*ID_SOCKET */       (ID_Socket)null
+       /*ID_SOCKET */       (ClusterMemberID)null
        );
 
 
@@ -2637,9 +2637,9 @@ class CGLThread extends Thread
  //==========================================================================
   /**
    * Envï¿½a una TPDUCGL BUSCAR_GL_PARA_EMISOR
-   * @param idglEmisor IDGL del Emisor para el que buscamos CG "PADRE"
+   * @param idglEmisor ClusterGroupID del Emisor para el que buscamos CG "PADRE"
    */
-  private void enviarTPDU_CGL_BUSCAR_GL_PARA_EMISOR(IDGL idglEmisor)
+  private void enviarTPDU_CGL_BUSCAR_GL_PARA_EMISOR(ClusterGroupID idglEmisor)
   {
     Buffer   buf       = null;
     String mn = "CLThread.enviarTPDU_CGL_BUSCAR_GL_PARA_EMISOR";
@@ -2651,7 +2651,7 @@ class CGLThread extends Thread
     //
       try
         {
-            // Poner IDGL Emisor pasado por parï¿½metro...
+            // Poner ClusterGroupID Emisor pasado por parï¿½metro...
             TreeMap treemap = new TreeMap();
             treemap.put(idglEmisor,null);
 
@@ -2695,11 +2695,11 @@ class CGLThread extends Thread
   /**
    * Envï¿½a una TPDUCGL GL_PARA_EMISOR notificando el CG para el grupo del emisor
    * preguntado.
-   * @param idglEmisor IDGL del emisor para el que se busca un CG "Padre".
-   * @param treeMapIDGLs Controladores de grupo "Padre" utilizados cuando emite el IDGL emisor
+   * @param idglEmisor ClusterGroupID del emisor para el que se busca un CG "Padre".
+   * @param treeMapIDGLs Controladores de grupo "Padre" utilizados cuando emite el ClusterGroupID emisor
    * @param TTL utilizado para enviar los datos.
    */
-  private void enviarTPDU_CGL_GL_PARA_EMISOR(IDGL idglEmisor, TreeMap treeMapIDGLs, byte TTL)
+  private void enviarTPDU_CGL_GL_PARA_EMISOR(ClusterGroupID idglEmisor, TreeMap treeMapIDGLs, byte TTL)
   {
     Buffer buf = null;
     String mn = "CLThread.enviarTPDU_CGL_GL_PARA_EMISOR";
@@ -2711,7 +2711,7 @@ class CGLThread extends Thread
       try
         {
 
-          // Poner IDGL del Emisor 1ï¿½ y despuï¿½s el del CG PAdre.....
+          // Poner ClusterGroupID del Emisor 1ï¿½ y despuï¿½s el del CG PAdre.....
           TreeMap treemap  = new TreeMap();
           treemap.put(idglEmisor,null);
           treemap.putAll(treeMapIDGLs);
@@ -2744,7 +2744,7 @@ class CGLThread extends Thread
   /**
    * Envï¿½a una TPDUCGL SOCKET_ACEPTADO_EN_GRUPO_LOCAL
    */
-  private void enviarTPDU_CGL_SOCKET_ACEPTADO_EN_GRUPO_LOCAL(ID_Socket id_socket)
+  private void enviarTPDU_CGL_SOCKET_ACEPTADO_EN_GRUPO_LOCAL(ClusterMemberID id_socket)
   {
     Buffer   buf       = null;
     String mn = "CLThread.enviarTPDU_CGL_SOCKET_ACEPTADO_EN_GRUPO_LOCAL";
@@ -2806,10 +2806,10 @@ class CGLThread extends Thread
       /*boolean flagIP*/   false ,
       /*N_MAX_SOCKETS*/    this.N_MAX_SOCKETS_GL,
       /*N_SOCKETS*/        this.N_SOCKETS,
-      /*IDGL_EMISOR*/      (IDGL)null,
+      /*IDGL_EMISOR*/      (ClusterGroupID)null,
       /*treeMapIDGL */     (TreeMap)null, /*MODIFICADO */
       /*treeMapID_SOCKET */(TreeMap)null,
-      /*ID_SOCKET */       (ID_Socket)null
+      /*ID_SOCKET */       (ClusterMemberID)null
       );
 
       buf = tpduCGL.construirTPDU();
@@ -2826,8 +2826,8 @@ class CGLThread extends Thread
 
         while(iterator.hasNext())
         {
-          IDGL idgl = (IDGL) iterator.next();
-          Log.debug(Log.CGL,mn,"IDGL --> "+idgl);
+          ClusterGroupID clusterGroupID = (ClusterGroupID) iterator.next();
+          Log.debug(Log.CGL,mn,"ClusterGroupID --> "+clusterGroupID);
         }
       }
     }
@@ -2842,14 +2842,14 @@ class CGLThread extends Thread
    * Envï¿½a un TPDU CGL GRUPO_LOCAL_VECINO
    * @param TTL TTL usado para enviar la notificaciï¿½n de grupo local.
    */
-  private void enviarTPDU_CGL_GRUPO_LOCAL_VECINO(short TTL, IDGL idgl_Emisor)
+  private void enviarTPDU_CGL_GRUPO_LOCAL_VECINO(short TTL, ClusterGroupID idgl_Emisor)
   {
     Buffer   buf       = null;
     String mn = "CLThread.enviarTPDU_CGL_GRUPO_LOCAL_VECINO";
 
     TreeMap treemapIDGL = (TreeMap) this.treeMapIDGLs.clone(); //Clonar
     //Quitarnos de la lista
-    treemapIDGL.remove(this.idgl);
+    treemapIDGL.remove(this.clusterGroupID);
 
     //
     // TPDU --> ClusterNet.TPDU_CGL_GRUPO_LOCAL_VECINO
@@ -2868,7 +2868,7 @@ class CGLThread extends Thread
       /*IDGL_EMISOR*/      idgl_Emisor,
       /*treeMapIDGL */     (TreeMap)treemapIDGL,
       /*treeMapID_SOCKET */(TreeMap)null,
-      /*ID_SOCKET */       (ID_Socket)null
+      /*ID_SOCKET */       (ClusterMemberID)null
       );
 
       buf = tpduCGL.construirTPDU();
@@ -2887,8 +2887,8 @@ class CGLThread extends Thread
         Iterator iterator = treemapIDGL.keySet().iterator();
         while(iterator.hasNext())
         {
-          IDGL idgl = (IDGL) iterator.next();
-          Log.debug(Log.CGL,mn,"IDGL --> "+idgl);
+          ClusterGroupID clusterGroupID = (ClusterGroupID) iterator.next();
+          Log.debug(Log.CGL,mn,"ClusterGroupID --> "+clusterGroupID);
         }
       }
     }
@@ -2902,7 +2902,7 @@ class CGLThread extends Thread
   /**
    * Envï¿½a una TPDUCGL DEJAR_GRUPO_LOCAL
    */
-  private void enviarTPDU_CGL_DEJAR_GRUPO_LOCAL(ID_Socket id_socket)
+  private void enviarTPDU_CGL_DEJAR_GRUPO_LOCAL(ClusterMemberID id_socket)
   {
     Buffer   buf       = null;
     TreeMap  treeMapIPSocket = null;
@@ -2953,7 +2953,7 @@ class CGLThread extends Thread
 
     Log.debug(Log.CGL,mn,"TPDUCGL --> ELIMINACION_GRUPO_LOCAL"+"\n"+tpduCGL.getIDGL());
 
-    this.socketClusterNetImp.sendPTMFEventConexion("CGL: Eliminar Grupo Local: "+ this.idgl);
+    this.socketClusterNetImp.sendPTMFEventConexion("CGL: Eliminar Grupo Local: "+ this.clusterGroupID);
 
     //
     // TPDU --> ClusterNet.TPDU_CGL_ELIMINACION_GRUPO_LOCAL
@@ -2971,7 +2971,7 @@ class CGLThread extends Thread
       /*N_SOCKETS*/        this.N_SOCKETS,
       /*treeMapIDGL */     (TreeMap)null,
       /*treeMapID_SOCKET */(TreeMap)null,
-      /*ID_SOCKET */       (ID_Socket)null
+      /*ID_SOCKET */       (ClusterMemberID)null
       );
 
 
@@ -3015,7 +3015,7 @@ class CGLThread extends Thread
       /*N_SOCKETS*/        this.N_SOCKETS,
       /*treeMapIDGL */     (TreeMap)null,
       /*treeMapID_SOCKET */(TreeMap)null,
-      /*ID_SOCKET */       (ID_Socket)null
+      /*ID_SOCKET */       (ClusterMemberID)null
       );
 
 
@@ -3060,7 +3060,7 @@ class CGLThread extends Thread
 
      while(this.colaAceptacionID_SOCKET.size() != 0)
      {
-       ID_Socket id_socket = (ID_Socket) this.colaAceptacionID_SOCKET.removeFirst();
+       ClusterMemberID id_socket = (ClusterMemberID) this.colaAceptacionID_SOCKET.removeFirst();
 
        //
        // Ver si no se ha pasado el lï¿½mite....
@@ -3093,22 +3093,22 @@ class CGLThread extends Thread
       this.bNotificarGLVecinos = false;
       this.bLanzadoTemporizadorNotificacionGLVecino = false;
 
-      //Enviar un TPDU para cada IDGL recibido pero
+      //Enviar un TPDU para cada ClusterGroupID recibido pero
       // teniendo en cuenta que no se repitan los TPDU de forma innecesaria.
 
       Iterator iterator = this.treeMapRespuestaGLVecinos.keySet().iterator();
       short TTLMayor = 0;
       while(iterator.hasNext())
       {
-        IDGL idgl = (IDGL) iterator.next();
+        ClusterGroupID clusterGroupID = (ClusterGroupID) iterator.next();
 
-        if (TTLMayor < idgl.TTL)
+        if (TTLMayor < clusterGroupID.TTL)
         {
-          TTLMayor = idgl.TTL;
+          TTLMayor = clusterGroupID.TTL;
           //Enviar
-          this.enviarTPDU_CGL_GRUPO_LOCAL_VECINO(idgl.TTL,idgl);
+          this.enviarTPDU_CGL_GRUPO_LOCAL_VECINO(clusterGroupID.TTL,clusterGroupID);
 
-          //Eliminar el IDGL del treemap....
+          //Eliminar el ClusterGroupID del treemap....
           iterator.remove();
         }
       }
@@ -3130,7 +3130,7 @@ class CGLThread extends Thread
         if(this.TTL_BUSCAR_GRUPO_LOCAL_VECINO >= this.socketClusterNetImp.getTTLSesion())
         {
           this.TTL_BUSCAR_GRUPO_LOCAL_VECINO = 1;
-          Log.debug (Log.CGL,mn,"Intentos MAXIMOS de busqueda de GL PADRES para el IDGL Emisor "+intentos_emisor.idglEmisor+"EXCEDIDO!!!");
+          Log.debug (Log.CGL,mn,"Intentos MAXIMOS de busqueda de GL PADRES para el ClusterGroupID Emisor "+intentos_emisor.idglEmisor+"EXCEDIDO!!!");
 
           //Despertar DataThread...
           //Log.log (mn,"POR LO MENOS ME HAN DESPERTADO.");
@@ -3139,7 +3139,7 @@ class CGLThread extends Thread
           /*if(intentos_emisor.numero_intentos > CGLThread.MAX_INTENTOS_BUSQUEDA_GL_EMISOR)
           {
             iterator.remove();
-            Log.log("CGLThread.notificacionesTemporizadores","Intentos MAXIMOS de busqueda de GL PADRES para el IDGL Emisor "+intentos_emisor.idglEmisor+"EXCEDIDO!!!");
+            Log.log("CGLThread.notificacionesTemporizadores","Intentos MAXIMOS de busqueda de GL PADRES para el ClusterGroupID Emisor "+intentos_emisor.idglEmisor+"EXCEDIDO!!!");
 
             //Despertar DataThread...
             Log.log (mn,"POR LO MENOS ME HAN DESPERTADO.");
@@ -3190,10 +3190,10 @@ class CGLThread extends Thread
 
       while(iterator.hasNext())
       {
-        IDGL idgl = (IDGL)iterator.next();
+        ClusterGroupID clusterGroupID = (ClusterGroupID)iterator.next();
 
         //Enviar TTL...
-        this.enviarTPDU_CGL_GL_PARA_EMISOR(idgl,this.getCGHijos(),(byte)idgl.TTL);
+        this.enviarTPDU_CGL_GL_PARA_EMISOR(clusterGroupID,this.getCGHijos(),(byte)clusterGroupID.TTL);
       }
     }
 
@@ -3226,36 +3226,36 @@ class CGLThread extends Thread
   /**
    * Comprobar la Cache
    */
-  private void comprobarCache(IDGL idgl)
+  private void comprobarCache(ClusterGroupID clusterGroupID)
   {
-     // NOTA: Comprobar si el idgl estï¿½ en las caches. Si es asï¿½ eliminamos
+     // NOTA: Comprobar si el clusterGroupID estï¿½ en las caches. Si es asï¿½ eliminamos
      // la entrada de la cache.
      //
-     if( this.cachePadres.containsKey(idgl))
-        this.cachePadres.remove(idgl);
-     if( this.cacheHijos.containsKey(idgl))
-        this.cacheHijos.remove(idgl);
+     if( this.cachePadres.containsKey(clusterGroupID))
+        this.cachePadres.remove(clusterGroupID);
+     if( this.cacheHijos.containsKey(clusterGroupID))
+        this.cacheHijos.remove(clusterGroupID);
 
   }
 
 
   //==========================================================================
   /**
-   * Almacena un IDGL en la lista y actualiza la lista de IDGLs a los que alcanza<br>
-   * @param idgl El IDGL key
-   * @param treemap_idgl Un treemap de IDGL que alcanza el IDGL key.
+   * Almacena un ClusterGroupID en la lista y actualiza la lista de IDGLs a los que alcanza<br>
+   * @param clusterGroupID El ClusterGroupID key
+   * @param treemap_idgl Un treemap de ClusterGroupID que alcanza el ClusterGroupID key.
    */
-  private void addIDGL(IDGL idgl_key, TreeMap treemap_idgl)
+  private void addIDGL(ClusterGroupID idgl_key, TreeMap treemap_idgl)
   {
        boolean bNotificar = false;
 
-       //Log.log("CGLThread","Almacenar IDGL -- "+idgl_key);
+       //Log.log("CGLThread","Almacenar ClusterGroupID -- "+idgl_key);
 
        if(idgl_key == null)
         return;
 
        //
-       // Almacenar este IDGL en la lista de los IDGL a los que nosotros alcanzamos
+       // Almacenar este ClusterGroupID en la lista de los ClusterGroupID a los que nosotros alcanzamos
        //
 
        if (!this.treeMapIDGLs.containsKey(idgl_key))
@@ -3273,9 +3273,9 @@ class CGLThread extends Thread
        {
            if(!this.treeMapIDGLs.containsKey(idgl_key))
            {
-                   //Aï¿½adir el IDGL
+                   //Aï¿½adir el ClusterGroupID
                   this.treeMapIDGLs.put(idgl_key,new RegistroIDGL_TreeMap(idgl_key,treemap_idgl));
-                  //Log.log("IDGL Aï¿½adido <--" +idgl_key,"");
+                  //Log.log("ClusterGroupID Aï¿½adido <--" +idgl_key,"");
            }
            else
            {
@@ -3295,9 +3295,9 @@ class CGLThread extends Thread
        }
        else
        {
-            //Aï¿½adir el IDGL
+            //Aï¿½adir el ClusterGroupID
             this.treeMapIDGLs.put(idgl_key,new RegistroIDGL_TreeMap(idgl_key,new TreeMap()));
-            //Log.log("IDGL Aï¿½adido <--" +idgl_key,"");
+            //Log.log("ClusterGroupID Aï¿½adido <--" +idgl_key,"");
        }
 
 
@@ -3305,7 +3305,7 @@ class CGLThread extends Thread
        comprobarCache(idgl_key);
 
        if(bNotificar)
-           // Notificar Nuevo IDGL a los IDGLListeners registrados
+           // Notificar Nuevo ClusterGroupID a los IDGLListeners registrados
            this.notificarNuevoIDGL(idgl_key);
 
 
@@ -3315,23 +3315,23 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Almacena un IDGL en la lista y actualiza la lista de IDGLs a los que alcanza<br>
+   * Almacena un ClusterGroupID en la lista y actualiza la lista de IDGLs a los que alcanza<br>
    */
   private void addIDGL()
   {
-       //Log.log("CGLThread","Almacenar IDGL -- "+tpduCGL.getIDGL());
+       //Log.log("CGLThread","Almacenar ClusterGroupID -- "+tpduCGL.getIDGL());
 
        this.addIDGL(tpduCGL.getIDGL(),tpduCGL.getTreeMapIDGL());
   }
 
   //==========================================================================
   /**
-   * Almacena un IDGL  en la sublista de otro IDGL.<br>
-   * @param idgl_GL_VECINO El 1ï¿½ IDGL del TPDU GRUPO_LOCAL_VECINO
+   * Almacena un ClusterGroupID  en la sublista de otro ClusterGroupID.<br>
+   * @param idgl_GL_VECINO El 1ï¿½ ClusterGroupID del TPDU GRUPO_LOCAL_VECINO
    */
-  private void addIDGL(IDGL idgl_GL_VECINO)
+  private void addIDGL(ClusterGroupID idgl_GL_VECINO)
   {
-       //Log.log("CGLThread","Almacenar IDGL  -- "+tpduCGL.getIDGL()+" como alcanzable por el IDGL: "+idgl_GL_VECINO);
+       //Log.log("CGLThread","Almacenar ClusterGroupID  -- "+tpduCGL.getIDGL()+" como alcanzable por el ClusterGroupID: "+idgl_GL_VECINO);
 
        //
        // almacenarlo-...
@@ -3349,10 +3349,10 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Almacena un ID_Socket y lo notifica a todos los ID_SocketListener
+   * Almacena un ClusterMemberID y lo notifica a todos los ClusterMemberListener
    * si no estaba ya almacenados.
    */
-  private void addID_Socket(ID_Socket id_socket)
+  private void addID_Socket(ClusterMemberID id_socket)
   {
 
     if(!this.treeMapID_Socket.containsKey(id_socket))
@@ -3372,7 +3372,7 @@ class CGLThread extends Thread
 
   //==========================================================================
   /**
-   * Almacena una lista de ID_Sockets y notifica aquellos ID_Socket
+   * Almacena una lista de ID_Sockets y notifica aquellos ClusterMemberID
    * que no estaban ya almacenados.
    */
   private void addID_Socket(TreeMap treeMap)
@@ -3381,7 +3381,7 @@ class CGLThread extends Thread
 
     while(iterator.hasNext())
     {
-       ID_Socket id = (ID_Socket) iterator.next();
+       ClusterMemberID id = (ClusterMemberID) iterator.next();
        this.addID_Socket(id);
     }
   }
@@ -3413,9 +3413,9 @@ class CGLThread extends Thread
    class Intentos_Emisor
    {
       short numero_intentos = 0;
-      IDGL idglEmisor = null;
+      ClusterGroupID idglEmisor = null;
 
-      Intentos_Emisor(IDGL idglEmisor, short intentos)
+      Intentos_Emisor(ClusterGroupID idglEmisor, short intentos)
       {
        this.numero_intentos = intentos;
        this.idglEmisor = idglEmisor;

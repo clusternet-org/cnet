@@ -56,7 +56,7 @@ public class TablaID_SocketsEmisores
   * Almacena la información sobre los id_sockets fuentes de datos.<br>
   * <table border=1>
   *  <tr>  <td><b>Key:</b></td>
-  *	    <td>{@link ID_Socket} fuente.</td>
+  *	    <td>{@link ClusterMemberID} fuente.</td>
   *  </tr>
   *  <tr>  <td><b>Value:</b></td>
   *	    <td>Instancia de {@link RegistroTHE registro Tabla Emisores}.</td>
@@ -80,7 +80,7 @@ public class TablaID_SocketsEmisores
   /**
    * Añade un nuevo id_socket al que se le asocia una ventana de recepción.
    * @param id_Socket emisor fuente de datos a añadir
-   * @param idgl grupo local al que pertenece el id_Socket
+   * @param clusterGroupID grupo local al que pertenece el id_Socket
    * @param iTtamMaxVtaRecep tamaño máximo de la ventana de recepción asociada
    * al id_Socket.
    * @param nSecInic número de secuencia inicial de la ventana de recepción
@@ -89,23 +89,23 @@ public class TablaID_SocketsEmisores
    * @exception ClaveDuplicadaExcepcion lanzada si id_Socket ya estaba registrado
    * @exception ClusterNetInvalidParameterException lanzada si nSecInic no es válido.
    */
-  public void addID_Socket (ID_Socket id_Socket,
-                            IDGL idgl,
+  public void addID_Socket (ClusterMemberID id_Socket,
+                            ClusterGroupID clusterGroupID,
                             int iTamMaxVtaRecep,
                             SecuenceNumber nSecInic)
                                 throws ClaveDuplicadaExcepcion,ClusterNetInvalidParameterException
   {
    if (this.treeMapTablaID_Sockets.containsKey (id_Socket))
       throw new ClaveDuplicadaExcepcion (
-                    "Ya existe un ID_Socket emisor con la dirección indicada" + id_Socket);
+                    "Ya existe un ClusterMemberID emisor con la dirección indicada" + id_Socket);
 
    // Crear el registro para este ID_Sockets.
    RegistroTHE reg = new RegistroTHE ();
 
    reg.rxWindow = new RxWindow (iTamMaxVtaRecep,nSecInic.tolong ());
    // No se ha entregado ningún TPDU al usuario procedente de id_Socket
-   // IDGL del emisor
-   reg.idgl = idgl;
+   // ClusterGroupID del emisor
+   reg.clusterGroupID = clusterGroupID;
 
    // Actualizamos el tiempo.
    reg.lTiempoUltimaRecepcion = ClusterTimer.tiempoActualEnMseg();
@@ -117,10 +117,10 @@ public class TablaID_SocketsEmisores
   /**
    * Elimina id_Socket.
    * @param id_Socket
-   * @return true si existía un ID_Socket y ha sido eliminado,o false en
+   * @return true si existía un ClusterMemberID y ha sido eliminado,o false en
    * caso contrario.
    */
-  public boolean removeID_Socket (ID_Socket id_Socket)
+  public boolean removeID_Socket (ClusterMemberID id_Socket)
   {
    if (this.treeMapTablaID_Sockets.remove (id_Socket)==null)
         return false;
@@ -134,7 +134,7 @@ public class TablaID_SocketsEmisores
    * @param id_socket
    * @return true si id_socket está registrado y ha sido actualizado.
    */
-  public boolean actualizarTiempoUltimaRecepcion (ID_Socket id_socket)
+  public boolean actualizarTiempoUltimaRecepcion (ClusterMemberID id_socket)
   {
    RegistroTHE registroTHE = (RegistroTHE)this.treeMapTablaID_Sockets.get (id_socket);
    if (registroTHE==null)
@@ -154,7 +154,7 @@ public class TablaID_SocketsEmisores
    * que hayan enviado un {@link TPDUDatosNormal} al grupo multicast.
    * <table border=1>
    *  <tr>  <td><b>Key:</b></td>
-   *	    <td>{@link ID_Socket} fuente.</td>
+   *	    <td>{@link ClusterMemberID} fuente.</td>
    *  </tr>
    *  <tr>  <td><b>Value:</b></td>
    *	    <td>NULL.</td>
@@ -171,10 +171,10 @@ public class TablaID_SocketsEmisores
 
     long lTActual = ClusterTimer.tiempoActualEnMseg();
     RegistroTHE registroTHENext;
-    ID_Socket id_socketNext;
+    ClusterMemberID id_socketNext;
     while (iteradorID_Socket.hasNext())
      {
-       id_socketNext = (ID_Socket)iteradorID_Socket.next();
+       id_socketNext = (ClusterMemberID)iteradorID_Socket.next();
        registroTHENext = (RegistroTHE)this.treeMapTablaID_Sockets.get (id_socketNext);
 
        if (registroTHENext==null)
@@ -197,7 +197,7 @@ public class TablaID_SocketsEmisores
    * @return true si no hay nada disponible que entregar al usuario o se ha
    * entregado todo lo disponible, y false en caso contrario.
    */
-  public boolean entregaDatosUsuario (ID_Socket id_socket,RxQueue rxQueue)
+  public boolean entregaDatosUsuario (ClusterMemberID id_socket,RxQueue rxQueue)
   {
    String mn ="TablaID_SocketEmisores.entregaDatosUsuario";
 
@@ -292,7 +292,7 @@ public class TablaID_SocketsEmisores
    * @param id_Socket
    * @return ventana de recepción asociada a id_Socket, o null si no existe.
    */
-  public RxWindow getVentanaRecepcion (ID_Socket id_Socket)
+  public RxWindow getVentanaRecepcion (ClusterMemberID id_Socket)
   {
    RegistroTHE reg = (RegistroTHE)this.treeMapTablaID_Sockets.get (id_Socket);
 
@@ -303,17 +303,17 @@ public class TablaID_SocketsEmisores
 
   //==========================================================================
   /**
-   * Devuelve el IDGL del ID_Socket
+   * Devuelve el ClusterGroupID del ClusterMemberID
    * @param id_Socket
-   * @return idgl identificador del grupo local al que pertenece id_Socket.
+   * @return clusterGroupID identificador del grupo local al que pertenece id_Socket.
    */
-  public IDGL getIDGLFuente (ID_Socket id_Socket)
+  public ClusterGroupID getIDGLFuente (ClusterMemberID id_Socket)
   {
    RegistroTHE reg = (RegistroTHE)this.treeMapTablaID_Sockets.get (id_Socket);
 
    if (reg==null)
         return null;
-   return reg.idgl;
+   return reg.clusterGroupID;
   }
 
   //==========================================================================
@@ -322,7 +322,7 @@ public class TablaID_SocketsEmisores
    * @return
    * <table border=1>
    *  <tr>  <td><b>Key:</b></td>
-   *	    <td>{@link ID_Socket} fuente.</td>
+   *	    <td>{@link ClusterMemberID} fuente.</td>
    *  </tr>
    *  <tr>  <td><b>Value:</b></td>
    *	    <td>NULL.</td>
@@ -353,7 +353,7 @@ public class TablaID_SocketsEmisores
 
 
 /**
- * Guarda la información de un ID_Socket que es fuente de datos.
+ * Guarda la información de un ClusterMemberID que es fuente de datos.
  * @see TablaID_SocketsEmisores#treeMapTablaID_Sockets
  * @version  1.0
  * @author M. Alejandro García Domínguez
@@ -362,11 +362,11 @@ public class TablaID_SocketsEmisores
  */
 class RegistroTHE
 {
-  /** Window de recepción asociada al ID_Socket asociado al registro*/
+  /** Window de recepción asociada al ClusterMemberID asociado al registro*/
   RxWindow rxWindow = null;
 
-  /** IDGL del ID_Socket */
-  IDGL idgl = null;
+  /** ClusterGroupID del ClusterMemberID */
+  ClusterGroupID clusterGroupID = null;
 
   /**
     * Instante de tiempo (mseg) en que se ha recibido el último {@link TPDUDatosNormal}
@@ -385,7 +385,7 @@ class RegistroTHE
   public String toString ()
   {
    return this.rxWindow.toString () +
-          this.idgl.toString() +
+          this.clusterGroupID.toString() +
           "Tiempo Ultima Recepcion: " + this.lTiempoUltimaRecepcion +
           "NSec siguiente a entregar usuario: " + this.lNSecAEntregar;
   }

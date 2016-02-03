@@ -42,7 +42,7 @@ import java.lang.Comparable;
  *
  * Los datos para identificar un ID_TPDU:
  * <UL>
- * <IL> {@link ID_Socket ID_Socket (IPv4 + Puerto Unicast)}</IL>
+ * <IL> {@link ClusterMemberID ClusterMemberID (IPv4 + Puerto Unicast)}</IL>
  * <IL> {@link SecuenceNumber Número de Secuencia} </IL>
  * </UL>
  *
@@ -59,7 +59,7 @@ public class ID_TPDU implements Cloneable,Comparable
  // ATRIBUTOS
 
  /** Identificador del socket Fuente */
- private ID_Socket id_Socket = null;
+ private ClusterMemberID id_Socket = null;
 
  /** Número de secuencia */
  private SecuenceNumber nSec = null;
@@ -72,7 +72,7 @@ public class ID_TPDU implements Cloneable,Comparable
     * @exception ParametroInvalidoException lanzada si alguno de los argumentos
     * es null.
     */
-   public ID_TPDU(ID_Socket id_SocketSrc, SecuenceNumber nSecParam)
+   public ID_TPDU(ClusterMemberID id_SocketSrc, SecuenceNumber nSecParam)
                      throws  ClusterNetInvalidParameterException
    {
     if ((id_SocketSrc==null)||(nSecParam==null))
@@ -86,7 +86,7 @@ public class ID_TPDU implements Cloneable,Comparable
    /**
     * Devuelve el identificador del socket
     */
-   public ID_Socket getID_Socket ()
+   public ClusterMemberID getID_Socket ()
    {
     return this.id_Socket;
    }

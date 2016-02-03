@@ -71,8 +71,8 @@ import java.io.InputStreamReader;
   /** Flujo de entrada*/
   //private BufferedReader in = null;
 
-  /** Flujo de entrada ID_SocketInputStream */
-  private ID_SocketInputStream id_socketIn = null;
+  /** Flujo de entrada ClusterMemberInputStream */
+  private ClusterMemberInputStream id_socketIn = null;
 
   /** Nueva Línea */
   private String newline = "\n";
