@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Power Transport Multicast Framework (PTMF)
 ====
 
@@ -32,3 +33,7 @@ Use: java -cp mutil2.0.jar iacobus.mutil.mPingReceiver
 
 # Licence
 Power Transport Multicast Framework (v2.0) is now available under Apache 2.0
+=======
+# clusterNet
+A free cluster framework
+>>>>>>> 486f74e34d5befe098541fd8a003f103c675bb5a
