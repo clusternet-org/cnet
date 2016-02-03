@@ -56,7 +56,7 @@ import java.util.TreeMap;
  * @version  1.0
  * @author M. Alejandro García Domínguez
  * <A HREF="mailto:alejandro.garcia.dominguez@gmail.com">(alejandro.garcia.dominguez@gmail.com)</A><p>
- *			   Antonio Berrocal Piris
+ *			   Antonio Berrocal Piris (antonioberrocalpiris@gmail.com)
  */
 
 public class ClusterNet {
@@ -180,9 +180,6 @@ public class ClusterNet {
 	  public static final int AMBITO_INTERNACIONAL = 128;
 	  /** Ambito de TTL de Inrestringido */
 	  public static final int AMBITO_INRESTRINGIDO = 255;
-
-
-
 
 
 	  /**Subtipo TPDU CGL BUSCAR_GRUPO_LOCAL */
