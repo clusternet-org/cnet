@@ -1,2 +1,5 @@
-multicast.test
-net.iacobus.ptmf
+org.clusternet
+org.clusternet.chat
+org.clusternet.ftp
+org.clusternet.ping
+org.clusternet.test

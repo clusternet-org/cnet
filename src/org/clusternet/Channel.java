@@ -77,7 +77,7 @@ public interface Channel
    * @param buf El buffer donde serán colocados los datos recibidos.
    * @param src La dirección del emisor de los datos.
    * @exception ClusterNetExcepcion Excepción genérica
-   * @exception PTMFInvalidParameterException Parámetro incorrecto.
+   * @exception ClusterNetInvalidParameterException Parámetro incorrecto.
    * @exception IOException Error recibiendo los datos
    */
   public abstract void receive(Buffer buf, Address src)
