@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for mPingSender Application -->
+<jnlp
+  spec="6.0+"
+  codebase="http://127.0.0.1/jws"
+  href="mPingReceiver_localhost.jnlp">
+  <information>
+    <title>mPingReceiver - Java Web Start </title>
+    <vendor>org.clusterNet</vendor>
+    <description>mPingReceiver Application</description>
+    <description kind="short">Test tool Multicast</description>
+    <icon href="clusterNet.jpg"> </icon>
+    <icon kind="splash" href="clusterNet.png"></icon>
+       <icon kind="desktop" href="clusterNet.jpg"></icon>
+    <offline-allowed/> 
+    <association mime-type="application-x/mpingreceiver-file"  extensions="mpingreceiver"/> 
+    <shortcut online="false" install="false">
+      <desktop/>
+      
+    </shortcut>
+  </information>
+  <security>
+      <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.7+" java-vm-args="-esa -Xnoclassgc"/>
+    <jar href="clusterNet_v1.0.jar"/>
+  </resources>
+  <application-desc main-class="org.clusternet.ping.mPingReceiver">
+  	<argument>224.10.10.10</argument>
+  	<argument>40404</argument>
+   </application-desc>
+  </jnlp> 

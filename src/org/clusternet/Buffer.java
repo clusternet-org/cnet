@@ -1,0 +1,715 @@
+//============================================================================
+//
+//	Copyright (c) 1999-2015 . All Rights Reserved.
+//
+//----------------------------------------------------------------------------
+//
+//	Fichero: Buffer.java  1.0 30/08/99
+//
+//	Description: Manage data as bytes.
+//
+// 	Authors: 
+//		 Alejandro García-Domínguez (alejandro.garcia.dominguez@gmail.com)
+//		 Antonio Berrocal Piris (antonioberrocalpiris@gmail.com)
+//
+//  Historial: 
+//	14.10.2014 Changed licence to LGPL
+//  07.04.2015 Changed licence to Apache 2.0     
+//
+//  This file is part of ClusterNet 
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+//----------------------------------------------------------------------------
+
+package org.clusternet;
+
+import java.io.*;
+import java.util.*;
+
+
+/**
+ * Clase para un buffer genï¿½rico.
+ * Esta clase no es thread-safe.
+ * @version  1.0
+ * @author M. Alejandro Garcï¿½a Domï¿½nguez
+ * <A HREF="mailto:alejandro.garcia.dominguez@gmail.com">(alejandro.garcia.dominguez@gmail.com)</A><p>
+ *			   Antonio Berrocal Piris
+ */
+
+public class Buffer implements Cloneable
+{
+  /** El buffer */
+  private byte[] buffer = null;
+
+  /** Offset del buffer,<b> utilizar lï¿½bremente, no afecta al funcionamiento
+   *  de la clase</b> */
+  private int  offset = 0;
+
+  /** Longitud en bytes */
+  private int  length = 0;
+
+  /** Longitud mï¿½xima del buffer */
+  private int  maxLength = 0;
+
+
+  //==========================================================================
+  /**
+   * constructor de copia.
+   */
+  private Buffer()
+  {
+    super();
+    this.buffer    = null;
+    this.offset    = 0;
+    this.length    = 0;
+    this.maxLength = 0;
+  }
+
+  //==========================================================================
+  /**
+   * Constructor que crea un buffer de un tamaï¿½o mï¿½ximo
+   * @param maxLen La mï¿½xima longitud del buffer.
+   * @exception ClusterNetInvalidParameterException
+   * @exception ClusterNetExcepcion
+   */
+  public Buffer(int maxLen) throws ClusterNetInvalidParameterException, ClusterNetExcepcion
+  {
+    super();
+
+    final String  mn = "Buffer.Buffer(int)";
+    this.buffer    = null;
+    this.offset    = 0;
+    this.length    = 0;
+    this.maxLength = 0;
+
+    if (maxLen > 0)
+    {
+      this.buffer = new byte[maxLen];
+
+      if (this.buffer == null)
+      {
+        throw new ClusterNetExcepcion(mn, "Error en reserva de memoria para el array. Longitud muy  grande.");
+      }
+
+      this.maxLength = maxLen;
+    }
+    else
+    {
+      throw new ClusterNetInvalidParameterException(mn, "maxLen invï¿½lido");
+    }
+  }
+
+  //==========================================================================
+  /**
+   * Constructor que crea un objeto Buffer que encapsula un array de bytes.
+   * La longitud y la longitud mï¿½xima del buffer se establece a la longitud
+   * del array de bytes pasados.
+   * @param bytes Array de bytes que encapsula la clase.
+   */
+  public Buffer(byte[] bytes)
+  {
+    super();
+
+    this.buffer    = bytes;
+    this.offset    = 0;
+    this.length    = bytes.length;
+    this.maxLength = bytes.length;
+  }
+
+   //==========================================================================
+  /**
+   * Constructor que crea un objeto Buffer que encapsula un array de bytes.
+   * La longitud y la longitud mï¿½xima del buffer se establece a la longitud
+   * del array de bytes pasados.
+   * @param bytes Array de bytes que encapsula la clase.
+   */
+  public Buffer(byte[] bytes, boolean copy)
+  {
+
+    super();
+
+    this.offset    = 0;
+    this.length    = bytes.length;
+    this.maxLength = bytes.length;
+
+    byte[] tempArray = null;
+
+    if(copy)
+    {
+      //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½COPIAR DATOS DEL USUARIO!!!!
+      tempArray = new byte[bytes.length];
+      System.arraycopy(bytes,0,tempArray,0,bytes.length);
+      this.buffer = tempArray;
+    }
+    else
+    {
+      this.buffer    = bytes;
+    }
+
+  }
+
+  //==========================================================================
+  /**
+   * Constructor que crea un objeto Buffer a partir de otro.
+   * <b>Los datos del buffer pueden ser copiados o compartidos.</b>
+   * @param buffer Objeto Buffer a copiar.
+   * @param copy Este parï¿½metro establece cuando los datos son copiados (true) o
+   * son compartidos(false). <b>ï¿½ï¿½ï¿½Cuidado con los datos compartidos!!!</b>
+   */
+  public Buffer(Buffer buffer,boolean copy)
+  {
+    super();
+
+    //
+    // Copiar los datos del buffer o compartirlos
+    //
+
+     this.offset    = buffer.getOffset();
+     this.length    = buffer.getLength();
+     this.maxLength = buffer.getMaxLength();
+
+    if (copy)
+    {
+      this.buffer  = new byte[buffer.getMaxLength()];
+
+      //
+      //Copiar los datos
+      //
+
+      for(int i=0 ; i<this.length; i++)
+        this.buffer[i]=(buffer.getBuffer())[i];
+    }
+    else
+    {
+      this.buffer    = buffer.getBuffer();
+    }
+  }
+
+  //==========================================================================
+  /**
+   * El mï¿½todo clone
+   * @return El nuevo objeto clonado.
+   */
+  public Object clone()
+  {
+    final String  mn = "Buffer.clone";
+    Buffer        buf = null;
+
+    //
+    // Crea un nuevo buffer de la longitud correcta y copia sobre ï¿½l el array .
+    //
+
+    if ((this.maxLength > 0) && (this.buffer != null))
+    {
+      try {
+        buf = new Buffer(this.maxLength);
+
+        buf.setOffset(this.offset);
+        buf.setLength(this.getLength());
+
+        System.arraycopy(this.buffer, 0, buf.buffer, 0, this.maxLength);
+
+      }
+      catch(ClusterNetInvalidParameterException e) {
+        Log.log(mn, e.getMessage());
+        System.exit(-1);
+      }
+      catch(ClusterNetExcepcion e) {
+        Log.log(mn, e.getMessage());
+        System.exit(-1);
+      }
+
+    }
+    else
+    {
+      Log.log(mn, "Longitud mï¿½xima o buffer errï¿½neo");
+      System.exit(-1);
+    }
+
+    return(buf);
+  }
+
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir 8 bytes de un long en orden de host al buffer
+   * en orden de red. <p><b>Los 8 bytes son aï¿½adidos en la posiciï¿½n del offset.</b>
+   * @param l El entero en orden de byte de host.
+   * @throws ClusterNetInvalidParameterException cuando el offset es incorrecto
+   */
+  public void addLong(long l) throws ClusterNetInvalidParameterException
+  {
+    this.addLong(l,length);
+  }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir 8 bytes de un long en orden de host al buffer
+   * en orden de red. <p><b>Los 8 bytes son aï¿½adidos en la posiciï¿½n del offset.</b>
+   * @param l El entero en orden de byte de host.
+   * @param offset El offset dentro del buffer donde se aï¿½adirï¿½ el entero.
+   * @throws ClusterNetInvalidParameterException cuando el offset es incorrecto
+   */
+  public void addLong(long l,int offset) throws ClusterNetInvalidParameterException
+  {
+    final String mn = "Buffer.addLong(long,int)";
+    //
+    // Verificar el offset
+    //
+
+    if (offset+8 > maxLength)
+    {
+      throw new ClusterNetInvalidParameterException(mn,"ï¿½ndice superior a la longitud mï¿½xima del buffer.");
+    }
+
+
+    buffer[offset]     = (byte)(l >>> 54);
+    buffer[offset + 1] = (byte)(l >>> 48);
+    buffer[offset + 2] = (byte)(l >>> 40);
+    buffer[offset + 3] = (byte)(l >>> 32);
+    buffer[offset + 4] = (byte)(l >>> 24);
+    buffer[offset + 5] = (byte)(l >>> 16);
+    buffer[offset + 6] = (byte)(l >>> 8);
+    buffer[offset + 7] = (byte)l;
+
+
+    if(offset+8 > length)
+    	length = offset+8;
+  }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir 4 bytes de un entero en orden de host al buffer
+   * en orden de red. <p><b>Los 4 bytes son aï¿½adidos en la posiciï¿½n del offset.</b>
+   * @param l El entero en orden de byte de host.
+   * @param offset El offset dentro del buffer donde se aï¿½adirï¿½ el entero.
+   * @throws ClusterNetInvalidParameterException cuando el offset es incorrecto
+   */
+  public void addInt(long l,int offset) throws ClusterNetInvalidParameterException
+  {
+    final String mn = "Buffer.addInt(long,int)";
+    //
+    // Verificar el offset
+    //
+
+    if (offset+4 > maxLength)
+    {
+      throw new ClusterNetInvalidParameterException(mn,"ï¿½ndice superior a la longitud mï¿½xima del buffer.");
+    }
+
+
+    buffer[offset]     = (byte)(l >>> 24);
+    buffer[offset + 1] = (byte)(l >>> 16);
+    buffer[offset + 2] = (byte)(l >>> 8);
+    buffer[offset + 3] = (byte)l;
+
+
+    if(offset+4 > length)
+    	length = offset+4;
+  }
+
+	//==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir 4 bytes de un entero en orden de host al buffer
+   * en orden de red. <p><b>Los 4 bytes son aï¿½adidos al final del buffer.</b>
+   * @param i El entero en orden de byte de host.
+   * @throws InvalidParameterException cuando el dato no cabe en el buffer
+   */
+  public void addInt(int i) throws ClusterNetInvalidParameterException
+  {
+    	addInt(i,length);
+  }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir 2 bytes de un short en orden de host al buffer
+   * en orden de red. <p><b>Los 2 bytes son aï¿½adidos en la posiciï¿½n del offset.</b>
+   * @param i El short en orden de byte de host.
+   * @param offset El offset dentro del buffer donde se aï¿½adirï¿½ el entero.
+   * @throws ClusterNetInvalidParameterException cuando el offset es incorrecto
+   */
+  public void addShort(int i,int offset) throws ClusterNetInvalidParameterException
+  {
+    final String mn="Buffer.addShort";
+    //
+    // Verificar el offset
+    //
+
+    if (offset+2 > maxLength)
+    {
+      throw new ClusterNetInvalidParameterException(mn,"ï¿½ndice superior a la longitud mï¿½xima del buffer.");
+    }
+
+
+    buffer[offset]     = (byte)(i >>> 8);
+    buffer[offset + 1] = (byte)i;
+
+    if(offset+2 > length)
+    	length = offset+2;
+  }
+
+ 	//==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir 2 bytes de un entero en orden de host al buffer
+   * en orden de red. <p><b>Los 2 bytes son aï¿½adidos al final del buffer.</b>
+   * @param i El short en orden de byte de host.
+   * @throws ClusterNetInvalidParameterException cuando el dato no cabe en el buffer
+   */
+  public void addShort(int i) throws ClusterNetInvalidParameterException
+  {
+    	addShort(i,length);
+  }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir un byte a un buffer
+   * @param i El byte
+   * @param offset El offset dentro del buffer donde se aï¿½adirï¿½ el entero.
+   * @throws ClusterNetInvalidParameterException cuando el dato no cabe en el buffer
+   */
+  public void addByte(byte i,int offset) throws ClusterNetInvalidParameterException
+  {
+    final String mn = "Buffer.addByte";
+    //
+    // Verificar el offset
+    //
+    if (offset+1 > maxLength)
+    {
+      throw new ClusterNetInvalidParameterException(mn,"ï¿½ndice superior a la longitud mï¿½xima del buffer.");
+    }
+
+
+    buffer[offset]     = (byte)(i);
+
+    if(offset+1 > length)
+    	length = offset+1;
+  }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir 1 byte de un entero en orden de host al buffer
+   * en orden de red. <p><b>El byte es aï¿½adido al final del buffer.</b>
+   * @param i El byte en orden de byte de host.
+   * @throws ClusterNetInvalidParameterException cuando el dato no cabe en el buffer
+   */
+  public void addByte(byte i) throws ClusterNetInvalidParameterException
+  {
+    	addByte(i,length);
+  }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir el contenido de un buffer (buffer fuente) a este
+   * buffer.
+   * @param srcBuffer Buffer fuente
+   * @param srcOffset Offset buffer fuente.
+   * @param dstOffset Offset del buffer destino donde se comenzarï¿½ la copia.
+   * @param length Nï¿½mero de bytes a copiar.
+   */
+  public void addBytes(Buffer srcBuffer, int srcOffset,int dstOffset, int length)
+  {
+    System.arraycopy(srcBuffer.getBuffer(),srcOffset,
+                       buffer,dstOffset , length);
+    this.length += length;
+
+  }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir una array de chars a este buffer.
+   * @param aChar Array de Chars
+   * @param iOffset Offset
+   */
+  public void addArrayChar(char[] aChar, int iOffset) throws ClusterNetInvalidParameterException
+  {
+    for(int i = 0; i<aChar.length; i++)
+    {
+      int iChar = aChar[i];
+      this.addShort(iChar,iOffset+(i*2));
+    }
+
+    this.length += aChar.length*2;
+  }
+  //==========================================================================
+  /**
+   * Un mï¿½todo para aï¿½adir el contenido de un buffer (buffer fuente) <b> al
+   * final del contenido de este buffer</b>. Se copia tanto como se pueda.
+   * @param srcBuffer Buffer fuente
+   * @param srcOffset Offset buffer fuente.
+   * @param length Nï¿½mero de bytes a copiar.
+   */
+  public void addBytes(Buffer srcBuffer, int srcOffset, int length)
+  {
+    System.arraycopy(srcBuffer.getBuffer(), srcOffset,
+                       buffer,this.length , length);
+    this.length += length;
+
+  }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para extraer 4 bytes de un entero de un buffer usando offset
+   * @param offset un offset adicional usado para localizar el entero en el buffer
+   * @return  El entero en orden de byte de host
+   * @throws ClusterNetInvalidParameterException cuando el offset es incorrecto
+   */
+  public long getInt(int offset) throws ClusterNetInvalidParameterException
+  {
+    final String mn = "Buffer.getInt(int)";
+    //
+    // Verificar el offset
+    //
+     if (offset + 4 > maxLength)
+    {
+      throw new ClusterNetInvalidParameterException(mn,"ï¿½ndice superior a la longitud mï¿½xima del buffer." );
+    }
+
+
+    long l=((((long)buffer[offset] & 0xff) << 24) |
+           (((long)buffer[offset + 1] & 0xff) << 16) |
+           (((long)buffer[offset + 2] & 0xff) << 8) |
+           ((long)buffer[offset + 3] & 0xff));
+
+    return l;
+
+ }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para obtener una array de chars a este buffer.
+   * @param iOffset Offset
+   * @param iLongitud Numero de chars a copiar. Tenga en cuenta
+   *                  que un char son 16 bits (2 bytes)
+   */
+  public char[] getArrayChar(int iOffset, int iLongitud) throws ClusterNetInvalidParameterException
+  {
+    char[] aChar = new char[iLongitud];
+
+    for(int i = 0; i<iLongitud; i++)
+    {
+      aChar[i] =  (char)this.getShort(iOffset+i*2);
+    }
+
+    return aChar;
+  }
+ //==========================================================================
+  /**
+   * Un mï¿½todo para extraer 4 bytes de un entero de un buffer usando offset
+   * @param offset un offset adicional usado para localizar el entero en el buffer
+   * @return  El entero en orden de byte de host
+   * @throws ClusterNetInvalidParameterException cuando el offset es incorrecto
+   */
+  public long getLong(int offset) throws ClusterNetInvalidParameterException
+  {
+    final String mn = "Buffer.getLong(int)";
+    //
+    // Verificar el offset
+    //
+     if (offset + 8 > maxLength)
+    {
+      throw new ClusterNetInvalidParameterException(mn,"ï¿½ndice superior a la longitud mï¿½xima del buffer." );
+    }
+
+
+    long l=((((long)buffer[offset] & 0xff) << 56) |
+           (((long)buffer[offset + 1] & 0xff) << 48) |
+           (((long)buffer[offset + 2] & 0xff) << 40) |
+           ((long)buffer[offset + 3] & 0xff) << 32)|
+           ((((long)buffer[offset +4] & 0xff) << 24) |
+           (((long)buffer[offset + 5] & 0xff) << 16) |
+           (((long)buffer[offset + 6] & 0xff) << 8) |
+           ((long)buffer[offset + 7] & 0xff));
+
+    return l;
+
+ }
+
+ 	//==========================================================================
+  /**
+   * Un mï¿½todo para extraer 2 bytes de un short de un buffer usando offset
+   * @param offset un offset adicional usado para localizar el entero en el buffer
+   * @return  El short en orden de byte de host
+   * @throws ClusterNetInvalidParameterException cuando el offset es incorrecto
+   */
+  public  int getShort(int offset) throws ClusterNetInvalidParameterException
+  {
+    final String mn = "Buffer.getShort(int)";
+    //
+    // Verificar el offset
+    //
+    if (offset + 2 > maxLength)
+    {
+      throw new ClusterNetInvalidParameterException(mn,"ï¿½ndice superior a la longitud mï¿½xima del buffer.");
+    }
+
+
+    return( ((buffer[offset] & 0xff) << 8) |(buffer[offset + 1] & 0xff));
+  }
+
+ 	//==========================================================================
+  /**
+   * Un mï¿½todo para extraer 1 byte de un entero de un buffer usando offset
+   * @param offset Un offset adicional usado para localizar el byte en el buffer
+   * @return  El byte
+   * @throws ClusterNetInvalidParameterException cuando el offset es incorrecto
+   */
+  public  short getByte(int offset) throws ClusterNetInvalidParameterException
+  {
+    final String mn = "Buffer.getByte(int)";
+    //
+    // Verificar el offset
+    //
+    if (offset + 1 > maxLength)
+    {
+      throw new ClusterNetInvalidParameterException(mn,"ï¿½ndice superior a la longitud mï¿½xima del buffer.");
+    }
+
+    return((short)(buffer[offset] & 0xff));
+  }
+
+  //==========================================================================
+  /**
+   * Un mï¿½todo para extraer un array de bytes del buffer usando un offset
+   * @param offset Un offset adicional usado para localizar el primer byte
+   *  en el buffer que se debe de copiar
+   * @param leng Nï¿½ de bytes a copiar.
+   * @return  El array de bytes
+   * @throws ClusterNetInvalidParameterException cuando el offset es incorrecto
+   */
+  public byte[] getBytes(int offset,  int leng) throws ClusterNetInvalidParameterException
+  {
+    final String mn = "Buffer.getBytes(int,int)";
+    byte[] buf = null;
+
+    //
+    // Verificar el offset
+    //
+    if (offset + leng > maxLength)
+    {
+      throw new ClusterNetInvalidParameterException(mn,"ï¿½ndice superior a la longitud mï¿½xima del buffer.");
+    }
+
+    buf = new byte[leng];
+    //Log.debug(Log.TPDU_CGL,mn,"Param offset: "+offset+"Param len: "+leng+" buf.length:"+buf.length+" buffer.length:"+buffer.length);
+
+    //for (int i=0; i<leng; i++)
+    //  buf[i] = buffer[offset+i];
+    System.arraycopy(buffer,offset,buf,0,leng);
+
+    return(buf);
+  }
+
+  //==========================================================================
+  /**
+   * Devuelve el buffer encapsulado
+   * @return Un array de bytes.
+   */
+   public byte[] getBuffer() { return buffer;}
+
+  //==========================================================================
+  /**
+   * Devuelve el nï¿½mero de bytes en el buffer
+   * @return Un entero indicando el nï¿½mero de bytes.
+   */
+   public int getLength() { return length;}
+
+  //==========================================================================
+  /**
+   * Devuelve la capacidad del buffer
+   * @return Un entero indicando el nï¿½mero de bytes que caben en el buffer.
+   */
+   public int getMaxLength() { return maxLength;}
+
+  //==========================================================================
+  /**
+   * Devuelve el offset
+   * @return Un entero indicando el offset del buffer.
+   */
+   public int getOffset() { return offset;}
+
+  //==========================================================================
+  /**
+   * Establece el offset
+   * @param offset El offset del buffer.
+   */
+   public void setOffset(int offset) {this.offset=offset;}
+
+  //==========================================================================
+  /**
+   * Establece el nï¿½mero de bytes que hay en el buffer, no el tamaï¿½o.<p>
+   * <b>NOTA: ï¿½ï¿½EL COMETIDO DE ESTE Mï¿½TODO ES AJUSTAR EL TAMAï¿½O DEL BUFFER
+   * CUANDO HA SIDO MODIFICADO FUERA DE LA CLASE, por ejemplo cuando se ha
+   * llamado al mï¿½todo getBuffer() y este se ha modificado. <P>
+   * NO SE RECOMIENDA SU USO, SALVO CASO IMPRESCINDIBLE, PARA AGREGAR DATOS
+   * UTILICE LOS Mï¿½TODOS DE LA CLASE QUE AJUSTAN AUTOMï¿½TICAMENTE LA LONGITUD
+   * DEL CAMPO length.</b>
+   *
+   * @param offset El nï¿½mero de bytes en el buffer.
+   */
+   public void setLength(int length) {this.length=length;}
+
+   public void setMaxLength(int length)
+    {
+     if (this.length > this.maxLength)
+        this.length =  this.maxLength;
+     this.maxLength=length;
+
+     if(this.maxLength > this.buffer.length)
+      this.maxLength =this.buffer.length;
+    }
+
+
+  //==========================================================================
+  /**
+   * Resetea el contenido del buffer. Establece a cero la longitud del
+   * contenido, el offset y rellena el buffer con ceros. El tamaï¿½o del buffer
+   * no se modifica.
+   */
+   public void reset() {
+
+      //
+      // Resetear el buffer.
+      //
+
+      for(int i=0; i<buffer.length; i++)
+        buffer[i]=0;
+
+      length=0;
+      offset=0;
+   }
+
+  //==========================================================================
+  /**
+   * devuelve una cadena identificativa del Buffer
+   * @return Cadena identificativa de los primeros bytes del buffer.
+   */
+   public String toString()
+   {
+    String cad  = new String();
+
+/*    int maxIteracciones = (this.maxLength > 10)? 10 : this.maxLength;
+
+    try
+    {
+     for(int i = 0; i<maxIteracciones ; i++)
+     {
+      cad +="\n["+i+"]: "+this.getByte(i);
+     }
+    }
+    catch(IOException e){;}
+*/
+    return new String (this.buffer);
+   }
+
+}
