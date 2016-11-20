@@ -6,28 +6,37 @@ clusterNet is initialy based on a novel reliable multicast transport protocol (l
 clusterNet provide a usefull framework to easy develop cluster applications. 
 clsuterNet is been used to implement a Scada Multicast Cluster for SmartGrids. At present testing developments are using IEC 60870-5-104 protocol and IEC 61850.
 
-#Tools - Examples
-cFtp - a ftp cluster tool 
 
-Use:  java -cp clusterNet_v1.0.jar org.clusternet.ftp.cFtp
-	  or launch .jnlp file 
+#Tools
+
+#mCopy - a multi host file copy cluster tool 
+This tool let transmit a file simultaneously to a number of receivers without replicate the information send over the network. 
+Use:  java -cp cNetv1.0.jar cnet.mcopy.runGUI
+
+	  
+	  
+#mChat - a multi chat cluster tool
+This tool let chat between different users using a decentralized system 
+Use: java -cp cNetv1.0.jar cnet.mchat.runGUI
 
 
-cChat - a chat cluster tool
+#mPing - a simple multicast ping tool
+mPing is a simple multicast ping to test multicast capabilities in your network. It send and receive packets to/from a multicast IPv4 address and port. TTL scope could be set and also different payloads to increase packet local. 
+Use: java -cp cNetv1.0.jar cnet.util.mping 
 
-Use: java -cp clusterNet_v1.0.jar org.clusternet.chat.cChat
+Example:
+java -cp cNetv1.0.jar cnet.util.mping 224.1.1.100 2020 32 32
 
-cPingSender / cPingReceiver Added mutils. A simple ping tool for send and receive multicast packets to test multicast communications on your cluster network. 
 
-Use:java -cp clusterNet_v1.0.jar org.clusternet.ping.mPingSender  <multicast address> <port> <ttl>
-Use:java -cp clusterNet_v1.0.jar org.clusternet.ping.mPingReceiver <multicast address> <port>
+#Multicast ping tool cPingSender / cPingReceiver
+cPingSender / cPingReceiver  are anothers simple ping tools for send and receive multicast packets to test multicast communications on your cluster network. 
+Use:java -cp cNetv1.0.jar cnet.util.mPingReceiver <multicast address> <port>
+Use:java -cp cNetv1.0.jar cnet.util.mPingSender  <multicast address> <port> <ttl>
 
 
 Example:
-java -cp clusterNet_v1.0.jar org.clusternet.ping.mPingReceiver 224.2.2.2 2000
-
-java -cp clusterNet_v1.0.jar org.clusternet.ping.mPingSender 224.2.2.2 2000 16
-
+java -cp -cp cNetv1.0.jar cnet.util.mPingReceiver 224.2.2.2 2000
+java -cp cNetv1.0.jar cnet.util.mPingSender 224.2.2.2 2000 16
 
 
 #Licence

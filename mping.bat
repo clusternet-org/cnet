@@ -1,0 +1,1 @@
+java -cp ./cNetv1.0.jar cnet.util.mping 224.0.1.100 2020 32 32

@@ -1,0 +1,353 @@
+//============================================================================
+//
+//	Copyright (c) 1999-2015. All Rights Reserved.
+//
+//----------------------------------------------------------------------------
+//
+//	Fichero: TPDUDatos.java  1.0 9/9/99
+//
+//
+//	Descripción: Clase TPDUDatos.
+//
+// 	Authors: 
+//		 Alejandro García-Domínguez (alejandro.garcia.dominguez@gmail.com)
+//		 Antonio Berrocal Piris (antonioberrocalpiris@gmail.com)
+//
+//  Historial: 
+//  07.04.2015 Changed licence to Apache 2.0     
+//
+//  This file is part of ClusterNet 
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//----------------------------------------------------------------------------
+
+package cnet;
+
+import java.util.*;
+import java.lang.*;
+
+
+/**
+ * Clase TPDU. Los siguiente campos son comunes a todos los TPDU Datos.<br>
+ *
+ * El formato completo del TPDU Datos es:<br>
+ *
+ *                      1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3<br>
+ * +0-1-2-3-4-5-6-7-8-9-0-1-2-3-4-5-6-7-8-9-0-1-2-3-4-5-6-7-8-9-0-1<br>
+ * +---------------------------------------------------------------+<br>
+ * +      Puerto Mulitcast         |          Puerto Unicast       +<br>
+ * +---------------------------------------------------------------+<br>
+ * +                    ID_GRUPO_LOCAL(4 bytes primeros)           +<br>
+ * +---------------------------------------------------------------+<br>
+ * +ID_GRUPO_LOCAL(2 bytes últimos)|          Longitud             +<br>
+ * +---------------------------------------------------------------+<br>
+ * +           Cheksum             | V |0|1|sub  |<br>
+ * +                               |   | | |tipo |<br>
+ * +---------------------------------------------+<br>
+ * <br>
+ * <br>
+ * Esta clase no es thread-safe.<br>
+ * Subclases:
+ * <ul>
+ *  <li>{@link TPDUDatosNormal}</li>
+ *  <li>{@link TPDUDatosRtx}</li>
+ *  <li>{@link TPDUMACK}</li>
+ *  <li>{@link TPDUACK}</li>
+ *  <li>{@link TPDUHACK}</li>
+ *  <li>{@link TPDUHSACK}</li>
+ *  <li>{@link TPDUNACK}</li>
+ *  <li>{@link TPDUHNACK}</li>
+ * </ul>
+ * @version  1.0
+ * @author M. Alejandro García Domínguez
+ * <A HREF="mailto:alejandro.garcia.dominguez@gmail.com">(alejandro.garcia.dominguez@gmail.com)</A><p>
+ * Antonio Berrocal Piris
+ * <A HREF="mailto:AntonioBP.wanadoo.es">(AntonioBP@wanadoo.es)</A><p>
+ */
+public class TPDUDatos extends TPDU
+{
+  // ATRIBUTOS
+  /** Longitud de los datos comunes a todos los TPDUDatos  */
+  static final int LONGHEADER = 3 * 4 + 3; // 15 bytes
+
+  /**
+   * Subtipo (3 bits): Subtipo del TPDU Control de Grupo Local:
+   * <table border=1>
+   * <tr><td> Bits </td><td> Mensaje:</td></tr>
+   * <tr><td> 000 </td><td> {@link TPDUDatosNormal}</td></tr>
+   * <tr><td> 001 </td><td> {@link TPDUDatosRtx}</td></tr>
+   * <tr><td> 010 </td><td> {@link TPDUMACK}</td></tr>
+   * <tr><td> 011 </td><td> {@link TPDUACK}</td></tr>
+   * <tr><td> 100 </td><td> {@link TPDUHACK}</td></tr>
+   * <tr><td> 101 </td><td> {@link TPDUHSACK}</td></tr>
+   * <tr><td> 110 </td><td> {@link TPDUNACK}</td></tr>
+   * <tr><td> 111 </td><td> {@link TPDUHNACK}</td></tr>
+   * </table>
+   */
+  byte SUBTIPO = 0;
+
+
+  /**
+   * Almacena la información del socket ClusterNet que ha enviado este TPDU.
+   * Se reserva a las subclases el asignar valor a este campo.
+   */
+  protected ClusterMemberID id_SocketEmisor = null;
+
+
+  /**
+   * Indica si el tpdu datos ha sido recibido por unicast o por multicast.
+   * Sólo es usado para los paquetes que son recibidos.
+   */
+  boolean recibidoPorUnicast = false;
+
+
+  //==========================================================================
+  /**
+   * Constructor utilizado para crear un TPDUDatos, obtiene la información de los
+   * campos a partir del objeto socketClusterNetImp.
+   * @param socketClusterNetImp Objeto SocketClusterNetImp del que obtiene el valor de los
+   * campos de la cabecera común.
+   * @exception ClusterNetExcepcion
+   * @exception ClusterNetInvalidParameterException lanzada si socketClusterNetImp es null
+   */
+  protected TPDUDatos (SocketClusterNetImp socketClusterNetImp)
+    throws ClusterNetExcepcion,ClusterNetInvalidParameterException
+  {
+   super (socketClusterNetImp);
+   // Asignar valor a this.id_SocketEmisor
+   this.id_SocketEmisor = socketClusterNetImp.getAddressLocal().toID_Socket ();
+  }
+
+
+  //==========================================================================
+
+  /**
+   * Constructor utilizado para crear un TPDU a partir de la información
+   * facilitada en los argumentos.
+   * @param puertoMulticast
+   * @param puertoUnicast
+   * @param clusterGroupID
+   * @param dirIp dirección IP unicast del emisor del TPDUDatos
+   * @exception ClusterNetExcepcion
+   * @exception ClusterNetInvalidParameterException lanzada si algún parámetro tienen un
+   * valor no válido.
+   */
+
+  protected TPDUDatos (int puertoMulticast,
+                       int puertoUnicast,
+                       ClusterGroupID clusterGroupID,
+                       IPv4 dirIp)
+    throws ClusterNetExcepcion,ClusterNetInvalidParameterException
+  {
+   super (puertoMulticast,puertoUnicast,clusterGroupID);
+
+   this.id_SocketEmisor = new ClusterMemberID (dirIp,puertoUnicast);
+  }
+
+
+  //==========================================================================
+  /**
+   * Constructor por defecto.
+   * Este constructor es para crear TPDUS a partir del parser de un Buffer
+   * @exception ClusterNetExcepcion
+   * @exception ParametroInvalido Se lanza en el constructor de la clase TPDU.
+   */
+  protected TPDUDatos ()
+
+      throws ClusterNetInvalidParameterException,ClusterNetExcepcion
+
+  {
+
+   super();
+
+  }
+
+
+  //==========================================================================
+  /**
+   * Crea un buffer del tamaño indicado y le introduce los datos de la cabecera
+   * común.
+   * @param Tipo valor del campo tipo
+   * @exception ClusterNetExcepcion Es lanzada cuando ocurre algún error.
+   * @exception ClusterNetInvalidParameterException si el tamaño del buffer a crear no
+   * es suficiente para introducir los campos de la cabecera común, o si el tipo
+   * no es válido.
+   */
+  protected Buffer construirCabeceraComun (short SUBTIPO,int tamañoBuffer) throws ClusterNetExcepcion,
+
+                        ClusterNetInvalidParameterException
+  {
+    final String mn = "TPDU.construirCabeceraComun";
+    int offset = 14;
+
+    // El tamaño del buffer deberá ser al menos suficientes para añadir la
+    // cabecera común a todos los TPDU de Datos.
+    if (TPDUDatos.LONGHEADER > tamañoBuffer)
+        throw new ClusterNetInvalidParameterException ("Tamaño de buffer insuficiente: " + tamañoBuffer);
+
+    Buffer bufferResult = super.construirCabeceraComun ((short)ClusterNet.TPDU_DATOS,tamañoBuffer);
+
+    // Comprobar que es del tipo TPDUDatos
+    if (this.TIPO!=ClusterNet.TPDU_DATOS)
+         throw new ClusterNetExcepcion ("El tipo no es TPDUDatos");
+
+    // 15º BYTE : Subtipo: (3 bits )
+    short anterior = bufferResult.getByte(offset);
+    // anterior  : XXXX XXXX
+    //      and  : 1111 0001 = 0xF1
+    //            ----------
+    //             XXXX 000X
+    // subtipo   : 0000 XXX0 = 0x0E
+    //            ----------
+    //             XXXX XXX0
+    anterior &= 0xF1;
+    bufferResult.addByte((byte)(((SUBTIPO << 1) & 0x0E) | anterior),offset);
+
+    return bufferResult;
+  }
+
+
+
+  //==========================================================================
+
+  /**
+   * El buffer pasado tiene que contener un TPDU Datos. Esta función extrae los
+   * valores de la cabecera común a todos los TPDU Datos:
+   * <ul>
+   *   <li>Puerto Multicast</li>
+   *   <li>Puerto Unicast</li>
+   *   <li>ClusterGroupID</li>
+   *   <li>Longiud</li>
+   *   <li>Cheksum</li>
+   *   <li>Versión</li>
+   *   <li>Tipo</li>
+   *   <li>Subtipo</li>
+   * </ul><br>
+   * Asigna al tpdu datos pasado por argumento los valores extraidos.
+   * @param buf Objeto Buffer que contiene un TPDU Datos
+   * @param tpduDatos tpdu al que se asignan los valores de los campos de la cabecera
+   * común extraidos desde el buffer.
+   * @param ipv4Emisor dirección IP unicast del emisor del TPDU Datos contenido
+   * en el buffer.
+   * @exception ClusterNetExcepcion Se lanza si ocurre un error al extraer los campos
+   * del buffer.
+   */
+
+   static protected void parseCabeceraComun(Buffer buf,TPDUDatos tpduDatos,IPv4 ipv4Emisor)
+
+                   throws ClusterNetExcepcion
+  {
+     final String mn = "TPDU.parseCabeceraComun";
+
+     TPDU.parseCabeceraComun (buf,tpduDatos);
+
+     // Obtener el subtipo
+     tpduDatos.SUBTIPO = TPDUDatos.getSubtipo (buf);
+
+     // Asignar valor a id_SocketEmisor
+     tpduDatos.id_SocketEmisor = new ClusterMemberID (ipv4Emisor,tpduDatos.getPuertoUnicast());
+
+  }
+
+  //==========================================================================
+
+  /**
+   * El buffer pasado por argumento contiene un TPDU Datos recibido de la red.
+   * Esta función extrae el valor del compo subtipo.
+   * @param buf buffer que contiene un TPDU Datos.
+   * @return subtipo
+   * @exception ClusterNetExcepcion lanzada si hubo un error al leer el buffer
+   */
+  static byte getSubtipo(Buffer buf) throws ClusterNetExcepcion
+
+  {
+   final String mn ="TPDU.getTipo";
+   int offset = 14;
+
+   byte subtipo    = 0;
+
+   //
+   // Asegurarse que se ha recibido algún dato,
+   // al menos los bytes de la cabecera del TPDU.
+   //
+   if (buf.getLength() < TPDU.LONGHEADER)
+      throw new ClusterNetExcepcion(mn, "La cabecera del TPDU (paquete) recibido no se ha recibido entera. No se puede procesar el TPDU.");
+
+   try
+   {
+      //
+      // 15º BYTE : VERSION (2 bits), TIPO (2 bits), SUBTIPO (3 bits).
+      //
+      subtipo = (byte)((buf.getByte(offset) & 0x0E) >>> 1);
+   }
+   catch(ClusterNetInvalidParameterException e)
+   {
+      throw new ClusterNetExcepcion(mn,e.getMessage());
+   }
+
+
+   return subtipo;
+  }
+
+ //============================================================================
+
+ /**
+
+  * Devuelve el identificador del socket que emitio este TPDU Datos.
+
+  */
+
+ ClusterMemberID getID_SocketEmisor ()
+ {
+  return this.id_SocketEmisor;
+ }
+
+ //===========================================================================
+
+ /**
+
+  * Devuelve una cadena informativa del TPDU Datos
+
+  */
+
+ public String toString()
+
+ {
+
+   return "Puerto Multicast: " + this.getPuertoMulticast() +
+
+          "\nPuerto Unicast: " + this.getPuertoUnicast() +
+
+          "\nIDGL: " + this.ID_GRUPO_LOCAL +
+
+          "\nLongitud: " + this.LONGITUD +
+
+          "\nCHECKSUM: " + this.CHEKSUM +
+
+          "\nVersion: " + this.VERSION +
+
+          "\nTipo: " + this.TIPO +
+
+          "\nSubtipo: " + this.SUBTIPO
+
+          ;
+
+ }
+
+
+
+ } // Fin de la clase.
+
+
+
+

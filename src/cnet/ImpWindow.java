@@ -1,0 +1,261 @@
+//============================================================
+//
+//	Copyright (c) 1999-2015 . All Rights Reserved.
+//
+//------------------------------------------------------------
+//
+//	Fichero: ImpWindow.java  1.0
+//
+// 	Autores: M. Alejandro García Domínguez (alejandro.garcia.dominguez@gmail.com)
+//      	 Antonio Berrocal Piris (AntonioBP@wanadoo.es)
+//
+//	Descripción: Clase abstracta ImpWindow.
+//
+// 	Authors: 
+//		 Alejandro García-Domínguez (alejandro.garcia.dominguez@gmail.com)
+//		 Antonio Berrocal Piris (antonioberrocalpiris@gmail.com)
+//
+//  Historial: 
+//  07.04.2015 Changed licence to Apache 2.0     
+//
+//  This file is part of ClusterNet 
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//------------------------------------------------------------
+
+
+package cnet;
+
+import java.util.*;
+
+
+/**
+ * Clase abstracta que define los métodos que tienen que tener las distintas
+ * implementaciones de una ventana.
+ * <p>En una ventana se pueden introducir TPDUDatosNormal
+ * con número de secuencia comprendidos entre el número de secuencia inicial y
+ * final de la ventana (inclusives).
+ * <p>Para elegir entre las distintas implementaciones de ventana que
+ * existan, se puede usar el método fábrica <b>{@link #getImpVentana}</b>.
+ * <p><b>Esta clase no está preparada para trabajar concurrentemente.</b>
+ * De la clase TPDUDatosNormal no utiliza nada más que su nombre, por lo que puede
+ * ser enteramente modificada sin afectar a esta clase.<br>
+ * Los números de secuencia los trata como long.
+ * @version  1.0
+ * @author Antonio Berrocal Piris
+ * <A HREF="mailto:AntonioBP@wanadoo.es">(AntonioBP@wanadoo.es)</A><p>
+ * M. Alejandro García Domínguez
+ * <A HREF="mailto:alejandro.garcia.dominguez@gmail.com">(alejandro.garcia.dominguez@gmail.com)</A><p>
+ */
+public abstract class ImpWindow
+{
+
+//==========================================================================
+/**
+ * Devuelve el número de secuencia inicial de la ventana.
+ * @return número de secuencia inicial de la ventana.
+ */
+abstract public long impGetNumSecInicial ();
+
+
+//==========================================================================
+/**
+ * Devuelve el número de secuencia final de la ventana.
+ * <p>Devuelve un número negativo en caso de que el tamaño máximo de la ventana
+ * sea cero (no existe número de secuencia final).
+ * @return número de secuencia final de la ventana, -1 en si el tamaño
+ * de la ventana es cero.
+ */
+abstract public long impGetNumSecFinal ();
+
+
+//===========================================================================
+/**
+ * Devuelve el número de secuencia más alto que verifica que todos los menores
+ * o iguales a él tiene un TPDUDatosNormal asociado.
+ * @return el número de secuencia mayor consecutivo, o -1 si no lo hay.
+ */
+abstract public long impGetNumSecConsecutivo ();
+
+//==========================================================================
+/**
+ * Indica si la ventana contiene un TPDUDatosNormal con el número de secuencia
+ * indicado.
+ * @param lNSec número de secuencia del TPDUDatosNormal que se quiere comprobar.
+ * @return true si la ventana lo contiene,, false en caso contrario.
+ */
+abstract public boolean impContieneTPDUDatosNormal (long lNSec);
+
+//==========================================================================
+/**
+ * Añade un TPDUDatosNormal a la ventana. El número de secuencia debe estar comprendido
+ * entre el número de secuencia inicial y final de la ventana.
+ * <p>El número de secuencia indicado será el que se asocie al TPDUDatosNormal por lo
+ * que este deberá corresponder con el número de secuencia verdadero del TPDUDatosNormal.
+ * @param nSec número de secuencia del TPDUDatosNormal que se quiere añadir.
+ * @return el TPDUDatosNormal, si existe, que estaba asociado al número de secuencia indicado,
+ * o null si no existe.
+ * @exception ClusterNetInvalidParameterException excepción lanzada cuando el número de
+ * secuencia no está comprendido entre el número de secuencia inicial y final
+ * de la ventana.
+ */
+abstract public TPDUDatosNormal impAddTPDUDatosNormal (long lNSec,TPDUDatosNormal pqt)
+                                        throws ClusterNetInvalidParameterException;
+
+
+//==========================================================================
+/**
+ * Elimina todos los TPDUDatosNormal de la ventana y fija un nuevo número inicial.
+ * El tamaño máximo de la ventana no es alterado.
+ * @param nSec nuevo número de secuencia inicial de la ventana.
+ * @exception ClusterNetInvalidParameterException lanzada cuando el número de secuencia
+ * pasado en el argumento no es válido.
+ */
+abstract public void impReiniciar (long lNSec) throws ClusterNetInvalidParameterException;
+
+//==========================================================================
+/**
+ * Obtiene el TPDUDatosNormal que en esta ventana está asociado al número de secuencia
+ * indicado  (no lo elimina).
+ * <p>Se retorna una referencia al TPDUDatosNormal pedido, por lo que cualquier
+ * modificación que se le haga se reflejará en la ventana, y viceversa.
+ * @param nSec número de secuencia del TPDUDatosNormal.
+ * @return el TPDUDatosNormal contenido en esta ventana y asociado al número de secuencia
+ * indicado, o null si no hay un TPDUDatosNormal asociado o si el número de secuencia
+ * no está comprendido entre el número de secuencia inicial y final de la ventana.
+ */
+abstract public TPDUDatosNormal impGetTPDUDatosNormal (long nSec);
+
+
+
+//==========================================================================
+/**
+ * Obtiene todos los TPDUDatosNormal con número de secuencia menor o igual al
+ * indicado (no los elimina). Si el nSec es mayor que el número de sec
+ * final de la ventana, obtiene todos los TPDUDatosNormal que haya en la ventana.
+ * <p>El vector retornado contiene las referencias a los TPDUDatosNormal pedidos,
+ * por lo que cualquier modificación de los mismos se refleja en los
+ * TPDUDatosNormal de la ventana, y viceversa.
+ * @param nSec número de secuencia.
+ * @return vector con los TPDUDatosNormal pedidos o vacío si no hay ninguno
+ */
+abstract public Vector impGetTPDUDatosNormalMenorIgual (long lNSec);
+
+
+//==========================================================================
+/**
+ * Incrementa en una unidad el número de secuencia inicial y final, eliminando
+ * el TPDUDatosNormal, si existe, asociado al número de secuencia inicial.
+ * @return el TPDUDatosNormal asociado al número de secuencia inicial de la ventana,
+ * o null si no hay un TPDUDatosNormal asociado.
+ */
+abstract public TPDUDatosNormal impRemoveTPDUDatosNormal ();
+
+//==========================================================================
+/**
+ * Elimina todos los TPDUDatosNormal cuyo número de secuencia asociado sea menor o igual
+ * al indicado, si éste es mayor que el número de secuencia final de la ventana
+ * se eliminan todos los TPDUDatosNormal.
+ * <p>El número de secuencia inicial pasa a ser el siguiente al indicado en el
+ * argumento, salvo que éste sea mayor que el número de secuencia final de la
+ * ventana, en cuyo caso pasa a ser el siguiente al número de secuencia final
+ * de la ventana. El número de secuencia final se incrementa en la misma proporción
+ * que el inicial.
+ * @param nSec número de secuencia
+ */
+abstract public void impRemoveTPDUDatosNormal (long lNSec);
+
+
+//==========================================================================
+/**
+ * Obtiene la capacidad de la ventana. Éste indica cuantos pares
+ * [números de secuencia,TPDUDatosNormal] caben en la ventana.
+ * @return el tamaño máximo de la ventana.
+ */
+abstract public int impGetCapacidadVentana ();
+
+//==========================================================================
+/**
+ * Obtiene el tamaño de la ventana. Éste indica cuantos pares
+ * [números de secuencia,TPDUDatosNormal] hay actualmente en la ventana.
+ * @return el tamaño de la ventana.
+ */
+abstract public long impGetTamañoVentana ();
+
+//==========================================================================
+/**
+ * Redimensiona la ventana a la nueva capacidad adaptando el número de
+ * secuencia final. El número de secuencia inicial no es alterado.
+ * <p>Si la nueva capacidad es inferior al anterior, se eliminan los TPDUDatosNormal
+ * con número de secuencia asociado superior hasta adaptar el tamaño. Si es
+ * superior, no se elimina ningún TPDUDatosNormal.
+ * @param nuevoTamañoMaximo la nueva capacidad de la ventana.
+ * @return vector con TPDUDatosNormal eliminados o vacío.
+ */
+abstract public Vector impCambiarCapacidadVentana (int iNuevoTamañoMaximo);
+
+
+//==========================================================================
+/**
+ * De entre los números de secuencia de la ventana con TPDUDatosNormal asociado, devuelve
+ * el mayor.
+ * @return número de secuencia mayor con TPDUDatosNormal asociado, o -1 si ningún
+ * número de secuencia de la ventana tiene TPDUDatosNormal asociado.
+ */
+abstract public long impGetNumSecMayor ();
+
+
+
+//==========================================================================
+/**
+ * Devuelve una implementación de ventana. El método elige entre las distintas
+ * implementaciones que conoce.
+ * <p>Si el tamaño máximo de la ventana a crear supera el umbral definido por
+ * la constante TAMAÑOUMBRAL entonces elige la implementación realizada con
+ * {@link TreeMap} en la cual la memoria se va localizando conforme se necesita,
+ * en caso contrario elige la implementación hecha con arrays en la cual la
+ * memoria total necesaria se localiza en la creación.
+ * @param tamañoMaximo tamaño máximo que tendrá la ventana
+ * @param nSec número de secuencia inicial de la ventana
+ * @return una implementación de ventana.
+ * @exception ClusterNetInvalidParameterException lanzada cuando el número de secuencia
+ * inicial no es válido.
+ */
+static final public ImpWindow getImpVentana (int iTamañoMaximo,long lNSec)
+        throws ClusterNetInvalidParameterException
+{
+ if (iTamañoMaximo>iTAMAÑOUMBRAL)
+        return new ImpWindowArray (iTamañoMaximo,lNSec);//ImpWindowTreeMap (tamañoMaximo,nSec);
+ return new ImpWindowArray (iTamañoMaximo,lNSec);
+}
+
+
+//==========================================================================
+/**
+ * Devuelve una cadena informativa.
+ */
+public String toString ()
+{
+ // Redefinir en las subclases.
+ return "";
+}
+
+
+/**
+ * Constante que define el umbral que determina que tipo de implementación
+ * utilizar.
+ */
+ private static final int iTAMAÑOUMBRAL = 16;
+
+
+}
