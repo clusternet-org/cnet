@@ -112,7 +112,7 @@ this.buffer_size = this.payload_size+4+4+8+4;
 
 private static void banner()
 {
-	//System.out.println("---------------------------------------------------------------------");
+	System.out.println("---------------------------------------------------------------------");
 	System.out.println("clusterNet mping v1.0");
 	System.out.println("(c) 2016 M.Alejandro Garcia");
 	System.out.println("---------------------------------------------------------------------");
