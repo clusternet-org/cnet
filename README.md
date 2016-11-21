@@ -3,6 +3,8 @@
 #Description
 clusterNet is initialy based on a novel reliable multicast transport protocol (level 4 of the OSI stack) developed at Universidad de Sevilla. Has been implemented with a herarchical design based on local groups that help minimizing control flow and permit the grow of the numbers of participants to a high level
 
+Tools for testing multicast communications has been developed to assist network administer. 
+
 clusterNet provide a usefull framework to easy develop cluster applications. 
 clsuterNet is been used to implement a Scada Multicast Cluster for SmartGrids. At present testing developments are using IEC 60870-5-104 protocol and IEC 61850.
 
